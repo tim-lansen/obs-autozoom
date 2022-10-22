@@ -1,7 +1,8 @@
 #pragma once
 extern "C" {
-#include <obs-module.h>
-#include <graphics/image-file.h>
+    #include <obs.h>
+    #include <obs-module.h>
+    #include <graphics/image-file.h>
 }
 
 #define SCALE_PARAMS 0.01f

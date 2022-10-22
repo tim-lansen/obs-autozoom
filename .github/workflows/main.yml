@@ -20,14 +20,14 @@ env:
   PLUGIN_NAME: 'obs-autozoom'
 
 jobs:
-  #clang_check:
-  #  name: 01 - Code Format Check
-  #  runs-on: ubuntu-22.04
-  #  steps:
-  #    - name: Checkout
-  #      uses: actions/checkout@v3
-  #      with:
-  #        submodules: recursive
+  clang_check:
+    name: 01 - Code Format Check
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
   #    - name: Install clang-format
   #      run: sudo apt-get install -y clang-format-13

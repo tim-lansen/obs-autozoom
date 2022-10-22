@@ -16,7 +16,7 @@ set(LINUX_MAINTAINER_EMAIL "tim.lansen@gmail.com")
 
 # Add your custom source files here - header files are optional and only required for visibility
 # e.g. in Xcode or Visual Studio
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/autozoom.c src/mdct_motion_detect.cpp src/mdct_obs_ifcpp.cpp src/simd_ops.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/autozoom.c src/mdct_crop_track.cpp src/mdct_motion_detect.cpp src/simd_ops.cpp)
 
 # Import libobs as main plugin dependency
 find_package(libobs REQUIRED)

@@ -69,7 +69,8 @@ struct obs_source_info crop_track_effect = {
 };
 
 OBS_DECLARE_MODULE()
-OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
+
+OBS_MODULE_USE_DEFAULT_LOCALE("obs-motion-zone-crop-track", "en-US")
 
 bool obs_module_load(void)
 {

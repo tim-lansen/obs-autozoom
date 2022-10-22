@@ -207,12 +207,44 @@ void inline avx2_diff_uint8(uint8_t* a, uint8_t* b, uint8_t* c, uint32_t size, u
 
 
 __declspec(align(32))
-static uint8_t M256I_LIMIT[32] = {
+uint8_t M256I_LIMIT[32] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
+
+__declspec(align(32))
+uint8_t M256I_THRESHOLD[32] = {
+    0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+    0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+    0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+    0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
+};
+
+__declspec(align(32))
+uint8_t M256I_OFFSET[32] = {
+    0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+    0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+    0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
+    0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
+};
+
+__declspec(align(32))
+const uint8_t M256I_FF[32] = {
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
+
+void simd_set_m256i_limit(uint8_t limit) {
+    memset(M256I_LIMIT, limit, 32);
+}
+
+void simd_set_m256i_threshold(uint8_t thr) {
+    memset(M256I_THRESHOLD, thr, 32);
+}
 
 
 uint32_t inline nonzero_bits_left(uint32_t val) {
@@ -227,9 +259,11 @@ uint32_t inline nonzero_bits_left(uint32_t val) {
 uint32_t inline nonzero_bits_right(uint32_t val) {
     register uint32_t m = 0x80000000, v = val, x = 0x1F;
     v = val;
-    while (!(v & m)) {
-        v <<= 1;
+    for (;;) {
+        if (v & m)
+            break;
         x--;
+        m = m >> 1;
     }
     return x;
 }
@@ -308,12 +342,14 @@ bool avx2_mask_detect_uint8(
 }
 
 // Masked sub & detect crop
-bool avx2_sub_mask_detect_uint8(
-    uint8_t* a, uint8_t* b, uint8_t* m, uint8_t* out, uint32_t width,
+bool avx2_diff_mask_detect_uint8(
+    uint8_t* a, uint8_t* b, uint8_t* m, uint32_t width,
     uint32_t &x1, uint32_t &x2) {
     bool result1 = false, result2 = false;
-    __m256i m0, m1, limit, r;
-    limit = _mm256_load_si256((const __m256i*)M256I_LIMIT);
+    __m256i m256_0, m256_1, mask, m256_2, m256_3, compare, r, zero;
+    zero = _mm256_setzero_si256();
+    m256_2 = _mm256_set1_epi8(0xFF);
+    compare = _mm256_load_si256((const __m256i*)M256I_THRESHOLD);
     // Check alignment
     /*bool p1_aligned = is_aligned32((uint64_t)a);
     bool p2_aligned = is_aligned32((uint64_t)b);
@@ -348,29 +384,69 @@ bool avx2_sub_mask_detect_uint8(
     //uint8_t* mm = m;
     uint32_t cx = 0, size = width & 0x7FFFFFE0, xx, bits;
     for (;;) {
-        m0 = _mm256_load_si256((const __m256i*)a);
-        m1 = _mm256_load_si256((const __m256i*)b);
-        r = _mm256_max_epu8(_mm256_subs_epu8(m0, m1), _mm256_subs_epu8(m1, m0));
-        _mm256_store_si256((__m256i*)out, r);
-        r = _mm256_min_epu8(limit, r);
-        m0 = _mm256_load_si256((const __m256i*)m);
-        m1 = _mm256_cmpgt_epi8(r, m0);
-        //_mm256_store_si256((__m256i*)out, m1);
-        bits = _mm256_movemask_epi8(m1);
+        m256_0 = _mm256_load_si256((const __m256i*)a);
+        m256_1 = _mm256_load_si256((const __m256i*)b);
+        mask   = _mm256_load_si256((const __m256i*)m);
+        r = _mm256_max_epu8(_mm256_subs_epu8(m256_0, m256_1), _mm256_subs_epu8(m256_1, m256_0));
+
+#if 0
+        m256_0 = _mm256_unpacklo_epi8(r, zero);
+        m256_1 = _mm256_unpacklo_epi8(mask, zero);
+
+        m256_2 = _mm256_mullo_epi16(m256_0, m256_1);
+        m256_3 = _mm256_cmpgt_epi8(m256_2, compare);
+        bits = (_mm256_movemask_epi8(m256_3) & 0xAAAAAAAA) >> 1;
         if (bits) {
             result1 = true;
-            xx = cx + nonzero_bits_left(bits);
-            if (xx < x1) {
+            xx = cx + (nonzero_bits_left(bits) >> 1);
+            if (x1 > xx) {
                 x1 = xx;
             }
-            xx = cx + nonzero_bits_right(bits);
-            if (xx > x2) {
+            xx = cx + (nonzero_bits_right(bits) >> 1);
+            if (x2 < xx) {
                 x2 = xx;
             }
         }
+
+        m256_0 = _mm256_unpackhi_epi8(r, zero);
+        m256_1 = _mm256_unpackhi_epi8(mask, zero);
+
+        m256_2 = _mm256_mullo_epi16(m256_0, m256_1);
+        m256_3 = _mm256_cmpgt_epi8(m256_2, compare);
+        bits = (_mm256_movemask_epi8(m256_3) & 0xAAAAAAAA) >> 1;
+        if (bits) {
+            xx = cx + 16 + (nonzero_bits_left(bits) >> 1);
+            if (x1 > xx) {
+                x1 = xx;
+            }
+            xx = cx + 16 + (nonzero_bits_right(bits) >> 1);
+            if (x2 < xx) {
+                x2 = xx;
+            }
+            result1 = true;
+        }
+#else
+        mask = _mm256_subs_epu8(m256_2, mask);
+        r = _mm256_subs_epu8(r, mask);
+        m256_3 = _mm256_cmpgt_epi8(r, compare);
+        bits = _mm256_movemask_epi8(m256_3);
+        if (bits) {
+            result1 = true;
+            xx = cx + nonzero_bits_left(bits);
+            if (x1 > xx) {
+                x1 = xx;
+            }
+            xx = cx + nonzero_bits_right(bits);
+            if (x2 < xx) {
+                x2 = xx;
+            }
+        }
+#endif
+
         size -= 0x20;
-        cx += 0x20; a += 0x20; b += 0x20; m += 0x20; out += 0x20;
-        if (size < 0x20 || cx >= x1 || result1) {
+        cx += 0x20; a += 0x20; b += 0x20; m += 0x20;// out += 0x20;
+        if (size < 0x20 || result1) {
+            // We don't need to scan forward
             break;
         }
     }
@@ -379,27 +455,68 @@ bool avx2_sub_mask_detect_uint8(
     b += size;
     m += size;
     cx += size;
-    out += size;
+    //out += size;
     for (;;) {
-        cx -= 0x20; a -= 0x20; b -= 0x20; m -= 0x20; out -= 0x20;
-        if (size < 0x20 || cx < x2 || result2) {
+        cx -= 0x20; a -= 0x20; b -= 0x20; m -= 0x20;// out -= 0x20;
+        if (size < 0x20 || result2) {
+            // No data left to scan, or we're inside previously detected area, or
             break;
         }
         size -= 0x20;
-        m0 = _mm256_load_si256((const __m256i*)a);
-        m1 = _mm256_load_si256((const __m256i*)b);
-        r = _mm256_min_epu8(limit, _mm256_max_epu8(_mm256_subs_epu8(m0, m1), _mm256_subs_epu8(m1, m0)));
-        m0 = _mm256_load_si256((const __m256i*)m);
-        m1 = _mm256_cmpgt_epi8(r, m0);
-        _mm256_store_si256((__m256i*)out, m1);
-        bits = _mm256_movemask_epi8(m1);
+        m256_0 = _mm256_load_si256((const __m256i*)a);
+        m256_1 = _mm256_load_si256((const __m256i*)b);
+        mask   = _mm256_load_si256((const __m256i*)m);
+        r = _mm256_max_epu8(_mm256_subs_epu8(m256_0, m256_1), _mm256_subs_epu8(m256_1, m256_0));
+
+#if 0
+        m256_0 = _mm256_unpacklo_epi8(r, zero);
+        m256_1 = _mm256_unpacklo_epi8(mask, zero);
+
+        m256_2 = _mm256_mullo_epi16(m256_0, m256_1);
+        m256_3 = _mm256_cmpgt_epi8(m256_2, compare);
+        bits = (_mm256_movemask_epi8(m256_3) & 0xAAAAAAAA) >> 1;
         if (bits) {
             result2 = true;
-            xx = cx + nonzero_bits_right(bits);
-            if (xx > x2) {
+            xx = cx + (nonzero_bits_left(bits) >> 1);
+            xx = cx + (nonzero_bits_right(bits) >> 1);
+            if (x2 < xx) {
                 x2 = xx;
             }
         }
+        
+        m256_0 = _mm256_unpackhi_epi8(r, zero);
+        m256_1 = _mm256_unpackhi_epi8(mask, zero);
+
+        m256_2 = _mm256_mullo_epi16(m256_0, m256_1);
+        m256_3 = _mm256_cmpgt_epi8(m256_2, compare);
+        bits = (_mm256_movemask_epi8(m256_3) & 0xAAAAAAAA) >> 1;
+        if (bits) {
+            result2 = true;
+            xx = cx + 16 + (nonzero_bits_left(bits) >> 1);
+            xx = cx + 16 + (nonzero_bits_right(bits) >> 1);
+            if (x2 < xx) {
+                x2 = xx;
+            }
+        }
+    
+#else
+        mask = _mm256_subs_epu8(m256_2, mask);
+        r = _mm256_subs_epu8(r, mask);
+        m256_3 = _mm256_cmpgt_epi8(r, compare);
+        bits = _mm256_movemask_epi8(m256_3);
+        if (bits) {
+            result2 = true;
+            xx = cx + nonzero_bits_left(bits);
+            //if (x1 > xx) {
+            //    x1 = xx;
+            //}
+            xx = cx + nonzero_bits_right(bits);
+            if (x2 < xx) {
+                x2 = xx;
+            }
+        }
+#endif
+    
     }
     return result1 || result2;
     /*for (; size; --size, p1++, p2++, p3++) {
@@ -409,6 +526,31 @@ bool avx2_sub_mask_detect_uint8(
     if (!p3_aligned) {
     memcpy(c, output, size);
     }*/
+}
+
+// Average (a + b) >> 1 => out
+void avx2_blend_uint8(uint8_t *a, uint8_t *b, uint8_t *out, uint32_t size) {
+    for (; size >= 0x20; size -= 0x20, a += 0x20, b += 0x20, out += 0x20) {
+        _mm256_store_si256(
+            (__m256i *)out,
+            _mm256_avg_epu8(
+                _mm256_load_si256((const __m256i *)a),
+                _mm256_load_si256((const __m256i *)b)
+            )
+        );
+    }
+}
+
+// Add offset
+void avx2_offset_uint8(uint8_t *src, uint8_t *dst, uint32_t size, uint8_t offset) {
+    __m256i l_off, l_src, l_dst;
+    memset(M256I_OFFSET, offset, 32);
+    l_off = _mm256_load_si256((const __m256i *)M256I_OFFSET);
+    for (; size >= 0x20; size -= 0x20, src += 0x20, dst += 0x20) {
+        l_src = _mm256_load_si256((const __m256i *)src);
+        l_dst = _mm256_adds_epu8(l_src, l_off);
+        _mm256_store_si256((__m256i *)dst, l_dst);
+    }
 }
 
 
@@ -460,9 +602,15 @@ static uint32_t PDMD_RESULT[8];
 // Scale factor for Sum of Squares of Differences (1/(32*32))
 #define SSD_SCALE 0.0009765625
 bool plane_diff_mask_detect(
-    const uint8_t* a, const uint8_t* b, const uint8_t* m,
-    uint32_t stride, uint32_t width, uint32_t height,
-    double thr, double* ssd) {
+    const uint8_t* a,       // A plane
+    const uint8_t* b,       // B plane
+    const uint8_t* m,       // Mask plane
+    uint32_t stride,        // Linesize
+    uint32_t width,
+    uint32_t height,
+    double thr,             // Threshold
+    double* ssd             // Result
+) {
     __m256i limit = _mm256_load_si256((const __m256i*)M256I_LIMIT);
     uint64_t _sum = 0;
     uint32_t _count = 0;
@@ -524,15 +672,11 @@ bool plane_diff_mask_detect(
 void plane_diff_i8(int8_t* a, int8_t* b, int8_t* c, uint32_t stride, uint32_t width, uint32_t height) {
     // Break to NUM_THREADS threads
     uint32_t step_y = height / THREADS_COUNT;
-//#pragma omp parallel num_threads(THREADS_COUNT)
+#pragma omp parallel num_threads(THREADS_COUNT)
     {
-//#pragma omp for
-        for (uint32_t section_index = 0; section_index < THREADS_COUNT; section_index++) {
-            uint32_t y_start = step_y * section_index;
-            uint32_t y_end = y_start + step_y;
-            for (uint32_t y = y_start; y < y_end; ++y) {
-                avx2_diff_int8(a + stride * y, b + stride * y, c + stride * y, width, section_index);
-            }
+#pragma omp for
+        for (int y = 0; y < height; y++) {
+            avx2_diff_int8(a + stride * y, b + stride * y, c + stride * y, width, 0);
         }
     }
 }

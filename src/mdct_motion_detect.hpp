@@ -62,8 +62,13 @@ void inline tp_reset(texture_position_t* texp) {
 
 class CMotionZone {
 public:
-    CMotionZone()
-        : m_mask_source(0)
+    CMotionZone(),
+        : m_format(VIDEO_FORMAT_NONE)
+        , m_threshold(50)
+        , m_buffer_index(0)
+        , m_buffer_size(0)
+        , m_poutput(0)
+        , m_mask_source(0)
         , m_mask_Y(0)
         , m_mask_UV(0)
         , m_mask_diff_Y(0)
@@ -75,10 +80,6 @@ public:
         , m_mask_w(0), m_mask_h(0)
         , m_width(0)
         , m_height(0)
-        , m_buffer_size(0)
-        , m_buffer_index(0)
-        , m_format(VIDEO_FORMAT_NONE)
-        , m_threshold(50)
         , m_x1ab(1), m_x2ab(0), m_y1ab(1), m_y2ab(0)
     {
         m_linesize[0] = 0;
@@ -97,7 +98,6 @@ public:
         m_buffers[9] = 0;
         m_buffers[10] = 0;
         m_buffers[11] = 0;
-        m_poutput = 0;
         m_zone.x1 = 0;
         m_zone.x2 = 0;
         m_zone.y1 = 0;
@@ -137,7 +137,8 @@ public:
     bool m_capture;
     uint32_t m_counter;
     uint32_t m_mask_w, m_mask_h;
-    uint32_t m_width, m_height, m_linesize[4];
+    uint32_t m_width, m_height;
+    uint32_t m_linesize[4];
     uint32_t m_x1ab, m_x2ab, m_y1ab, m_y2ab;
     ZoneCrop m_zone;
     //TexturePosition texp;

@@ -377,7 +377,9 @@ obs_source_frame *CMotionDetect::feed_frame(obs_source_frame *f) {
         uint8_t *line_dynamic = m_mask_chroma_dynamic;
         uint32_t x1 = half_w, x2 = 0, y1 = half_h, y2 = 0;
 
-        for (int y = 0; y < half_h; ++y, line_p1 += half_w, line_p2 += half_w, line_mask += half_w, line_dynamic += half_w) {
+        for (uint32_t y = 0;
+             y < half_h;
+             ++y, line_p1 += half_w, line_p2 += half_w, line_mask += half_w, line_dynamic += half_w) {
             uint32_t xx1 = half_w, xx2 = 0;
             bool gotcha = avx2_diff_mask_detect_uint8(line_p1, line_p2, line_mask, half_w, xx1, xx2);
             if (gotcha) {

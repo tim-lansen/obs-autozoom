@@ -9,6 +9,15 @@ extern "C" {
 }
 
 
+#if defined(_MSC_VER)
+#define ALIGNED(x) __declspec(align(x))
+#else
+#if defined(__GNUC__)
+#define ALIGNED(x) __attribute__((aligned(x)))
+#endif
+#endif
+
+
 typedef struct {
     size_t aligned_size;
     void* allocated_pointer;
@@ -163,7 +172,7 @@ void inline avx2_diff_uint8(uint8_t* a, uint8_t* b, uint8_t* c, uint32_t size, u
     AlignedPointer* ap = NULL;
     __m256i m0, m1, m2;
     // Check alignment
-    /*bool p1_aligned = is_aligned32((uint64_t)a);
+    bool p1_aligned = is_aligned32((uint64_t)a);
     bool p2_aligned = is_aligned32((uint64_t)b);
     bool p3_aligned = is_aligned32((uint64_t)c);
     // Get/create aligned buffers if needed
@@ -186,7 +195,7 @@ void inline avx2_diff_uint8(uint8_t* a, uint8_t* b, uint8_t* c, uint32_t size, u
         p3 = c;
     } else {
         p3 = (uint8_t*)ap->aligned_pointer3;
-    }*/
+    }
 
     // Run conversion
     output = p3;
@@ -206,7 +215,7 @@ void inline avx2_diff_uint8(uint8_t* a, uint8_t* b, uint8_t* c, uint32_t size, u
 }
 
 
-__declspec(align(32))
+ALIGNED(32)
 uint8_t M256I_LIMIT[32] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 
@@ -214,7 +223,7 @@ uint8_t M256I_LIMIT[32] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
 
-__declspec(align(32))
+ALIGNED(32)
 uint8_t M256I_THRESHOLD[32] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
@@ -222,7 +231,7 @@ uint8_t M256I_THRESHOLD[32] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
 
-__declspec(align(32))
+ALIGNED(32)
 uint8_t M256I_OFFSET[32] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
@@ -230,7 +239,7 @@ uint8_t M256I_OFFSET[32] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F
 };
 
-__declspec(align(32))
+ALIGNED(32)
 const uint8_t M256I_FF[32] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -342,39 +351,37 @@ bool avx2_mask_detect_uint8(
 }
 
 // Masked sub & detect crop
-bool avx2_diff_mask_detect_uint8(
-    uint8_t* a, uint8_t* b, uint8_t* m, uint32_t width,
-    uint32_t &x1, uint32_t &x2) {
+bool avx2_diff_mask_detect_uint8(uint8_t* a, uint8_t* b, uint8_t* m, uint32_t width, uint32_t &x1, uint32_t &x2) {
     bool result1 = false, result2 = false;
     __m256i m256_0, m256_1, mask, m256_2, m256_3, compare, r, zero;
     zero = _mm256_setzero_si256();
     m256_2 = _mm256_set1_epi8(0xFF);
     compare = _mm256_load_si256((const __m256i*)M256I_THRESHOLD);
     // Check alignment
-    /*bool p1_aligned = is_aligned32((uint64_t)a);
+    bool p1_aligned = is_aligned32((uint64_t)a);
     bool p2_aligned = is_aligned32((uint64_t)b);
     bool p3_aligned = is_aligned32((uint64_t)c);
     // Get/create aligned buffers if needed
     if (!(p1_aligned && p2_aligned)) {
-    ap = aligned_pointer_get(client_id, size);
+        ap = aligned_pointer_get(client_id, size);
     }
     if (p1_aligned) {
-    p1 = a;
+        p1 = a;
     } else {
-    p1 = (uint8_t*)ap->aligned_pointer1;
-    memcpy(p1, a, size);
+        p1 = (uint8_t*)ap->aligned_pointer1;
+        memcpy(p1, a, size);
     }
     if (p2_aligned) {
-    p2 = b;
+        p2 = b;
     } else {
-    p2 = (uint8_t*)ap->aligned_pointer2;
-    memcpy(p2, b, size);
+        p2 = (uint8_t*)ap->aligned_pointer2;
+        memcpy(p2, b, size);
     }
     if (p3_aligned) {
-    p3 = c;
+        p3 = c;
     } else {
-    p3 = (uint8_t*)ap->aligned_pointer3;
-    }*/
+        p3 = (uint8_t*)ap->aligned_pointer3;
+    }
 
     // Run conversion
 
@@ -554,11 +561,11 @@ void avx2_offset_uint8(uint8_t *src, uint8_t *dst, uint32_t size, uint8_t offset
 }
 
 
-__declspec(align(16))
+ALIGNED(16)
 static uint8_t blend_a[16];
-__declspec(align(16))
+ALIGNED(16)
 static uint8_t blend_b[16];
-__declspec(align(32))
+ALIGNED(32)
 static uint8_t MASK[] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
 void plane_blend_avx2(uint8_t* a_in, uint8_t* b_in, uint32_t stride, uint32_t width, uint32_t height, uint8_t ka, uint8_t kb) {
     memset(blend_a, ka, 16);
@@ -596,7 +603,7 @@ void plane_blend_avx2(uint8_t* a_in, uint8_t* b_in, uint32_t stride, uint32_t wi
 
 #define THREADS_COUNT 4
 
-__declspec(align(32))
+ALIGNED(32)
 static uint32_t PDMD_RESULT[8];
 // Scan blocks 32x32 pix
 // Scale factor for Sum of Squares of Differences (1/(32*32))
@@ -672,9 +679,9 @@ bool plane_diff_mask_detect(
 void plane_diff_i8(int8_t* a, int8_t* b, int8_t* c, uint32_t stride, uint32_t width, uint32_t height) {
     // Break to NUM_THREADS threads
     uint32_t step_y = height / THREADS_COUNT;
-#pragma omp parallel num_threads(THREADS_COUNT)
+//#pragma omp parallel num_threads(THREADS_COUNT)
     {
-#pragma omp for
+//#pragma omp for
         for (int y = 0; y < height; y++) {
             avx2_diff_int8(a + stride * y, b + stride * y, c + stride * y, width, 0);
         }

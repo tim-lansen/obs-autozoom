@@ -68,7 +68,7 @@ struct crop_track_data {
     uint32_t width, height;
 };
 
-void CropTrack::tick(tp_slot_t *tp_slot, float seconds) {
+void CropTrack::tick(tp_slot_t *tp_slot) {
     // Current boundaries:
     texture_position_t *tp = &tp_slot->tp;
     texture_center_t tc;

@@ -71,7 +71,7 @@ public:
         tc_reset0(&m_tc_velocity);
         tc_reset0(&m_tc_accel);
     }
-    void tick(tp_slot_t *tp, float seconds);
+    void tick(tp_slot_t *tp);
     //void process_scale(bool slow);
     texture_position_t m_texp;
     texture_center_t m_tc_avg;

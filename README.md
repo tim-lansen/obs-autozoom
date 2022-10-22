@@ -1,4 +1,6 @@
-# OBS Plugin Template
+# OBS Plugin Template source
+
+https://github.com/obsproject/obs-plugintemplate#obs-plugin-template
 
 ## Introduction
 

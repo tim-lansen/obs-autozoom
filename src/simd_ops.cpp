@@ -360,9 +360,11 @@ bool avx2_diff_mask_detect_uint8(uint8_t* a, uint8_t* b, uint8_t* m, uint32_t wi
     m256_2 = _mm256_set1_epi8(0xFF);
     compare = _mm256_load_si256((const __m256i*)M256I_THRESHOLD);
     // Check alignment
+    /*
     bool p1_aligned = is_aligned32((uint64_t)a);
     bool p2_aligned = is_aligned32((uint64_t)b);
     bool p3_aligned = is_aligned32((uint64_t)c);
+    AlignedPointer *ap = NULL;
     // Get/create aligned buffers if needed
     if (!(p1_aligned && p2_aligned)) {
         ap = aligned_pointer_get(client_id, size);
@@ -383,7 +385,7 @@ bool avx2_diff_mask_detect_uint8(uint8_t* a, uint8_t* b, uint8_t* m, uint32_t wi
         p3 = c;
     } else {
         p3 = (uint8_t*)ap->aligned_pointer3;
-    }
+    }*/
 
     // Run conversion
 

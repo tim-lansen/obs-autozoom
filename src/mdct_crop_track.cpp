@@ -176,9 +176,9 @@ extern "C" {
             filter->width = obs_source_get_base_width(target);
             filter->height = obs_source_get_base_height(target);
         }
-	filter->ct->tick(&tp_slots[filter->ct_slot]);//, seconds);
+        filter->ct->tick(&tp_slots[filter->ct_slot]);//, seconds);
 
-        //UNUSED_PARAMETER(seconds);
+        UNUSED_PARAMETER(seconds);
     }
 
     void cte_render(void *data, gs_effect_t *effect) {

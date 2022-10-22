@@ -6,6 +6,7 @@ extern "C" {
 #include <util/circlebuf.h>
 #include <util/dstr.h>
 }
+
 //#include "simd_interface.h"
 #include "mdct_motion_detect.hpp"
 

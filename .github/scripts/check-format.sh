@@ -5,11 +5,13 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-if [ ${#} -eq 1 ]; then
-    VERBOSITY="--verbose"
-else
-    VERBOSITY=""
-fi
+VERBOSITY="--verbose"
+
+#if [ ${#} -eq 1 ]; then
+#    VERBOSITY="--verbose"
+#else
+#    VERBOSITY=""
+#fi
 
 # Runs the Clang Formatter in parallel on the code base.
 # Return codes:

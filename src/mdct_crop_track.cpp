@@ -100,7 +100,7 @@ void CropTrack::tick(tp_slot_t *tp_slot, float seconds) {
 
 extern "C" {
 
-    static char *NAME_CT = NAME_CROP_TRACK;
+    static const char *NAME_CT = NAME_CROP_TRACK;
 
     const char *cte_get_name(void *unused) {
         UNUSED_PARAMETER(unused);

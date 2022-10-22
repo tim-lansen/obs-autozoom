@@ -62,7 +62,7 @@ if(OS_WINDOWS)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
 
   if(MSVC)
-    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W4)
+    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE /W2)
   endif()
   # --- End of section ---
 
@@ -75,12 +75,12 @@ elseif(OS_MACOS)
   set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
   set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
 
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall)
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-reorder)
   # --- End of section ---
 
   # --- Linux-specific build settings and tasks ---
 else()
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall)
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-reorder)
 endif()
 # --- End of section ---
 

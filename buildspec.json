@@ -52,7 +52,8 @@
         },
         "linux-x86_64": {
             "qtVersion": 6
-        },
+        }
+    },
     "name": "obs-autozoom",
     "version": "1.0.0"
 }

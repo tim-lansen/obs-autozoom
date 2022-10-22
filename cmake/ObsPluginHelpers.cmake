@@ -174,7 +174,6 @@ if(OS_POSIX)
   target_compile_options(
     ${CMAKE_PROJECT_NAME}
     PRIVATE
-      -Werror
       -Wextra
       -Wvla
       -Wformat

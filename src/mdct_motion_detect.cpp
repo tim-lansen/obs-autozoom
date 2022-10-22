@@ -504,7 +504,7 @@ struct motion_detect_filter_data {
 
 extern "C" {
 
-    static char *NAME_MD = NAME_MOTION_DETECT;
+    static const char *NAME_MD = NAME_MOTION_DETECT;
 
     const char *mdf_get_name(void *unused) {
         UNUSED_PARAMETER(unused);

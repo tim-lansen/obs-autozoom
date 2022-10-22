@@ -62,6 +62,29 @@ void inline tp_reset(texture_position_t* texp) {
 
 class CMotionZone {
 public:
+
+    video_format m_format;
+    uint8_t m_threshold;
+    uint8_t m_buffer_index;
+    size_t m_buffer_size;
+    void* m_buffers[12];
+    void* m_poutput;
+    void* m_mask_source;
+    void* m_mask_Y;
+    void* m_mask_UV;
+    void* m_mask_diff_Y;
+    void* m_mask_diff_UV;
+    uint32_t m_similar_count;
+    double m_ssd_threshold;
+    bool m_capture;
+    uint32_t m_counter;
+    uint32_t m_mask_w, m_mask_h;
+    uint32_t m_width, m_height;
+    uint32_t m_linesize[4];
+    uint32_t m_x1ab, m_x2ab, m_y1ab, m_y2ab;
+    ZoneCrop m_zone;
+    //TexturePosition texp;
+
     CMotionZone(),
         : m_format(VIDEO_FORMAT_NONE)
         , m_threshold(50)
@@ -121,27 +144,6 @@ public:
     void feed_y(obs_source_frame* f, texture_position_t* texp);
     void draw_zone_y(obs_source_frame* f);
     void detect_y();
-    video_format m_format;
-    uint8_t m_threshold;
-    uint8_t m_buffer_index;
-    size_t m_buffer_size;
-    void* m_buffers[12];
-    void* m_poutput;
-    void* m_mask_source;
-    void* m_mask_Y;
-    void* m_mask_UV;
-    void* m_mask_diff_Y;
-    void* m_mask_diff_UV;
-    uint32_t m_similar_count;
-    double m_ssd_threshold;
-    bool m_capture;
-    uint32_t m_counter;
-    uint32_t m_mask_w, m_mask_h;
-    uint32_t m_width, m_height;
-    uint32_t m_linesize[4];
-    uint32_t m_x1ab, m_x2ab, m_y1ab, m_y2ab;
-    ZoneCrop m_zone;
-    //TexturePosition texp;
     void zonecrop2textureposition(texture_position_t* texp) {
         if (m_width && m_height) {
             float w = (float)m_width;
@@ -179,7 +181,7 @@ public:
     {
         tp_reset(&texp);
     }
-    void tick(texture_position_t* tp, float seconds);
+    void tick(texture_position_t* tp);
     void process_scale(bool slow);
     texture_position_t texp;
     // Setup

@@ -524,9 +524,9 @@ bool plane_diff_mask_detect(
 void plane_diff_i8(int8_t* a, int8_t* b, int8_t* c, uint32_t stride, uint32_t width, uint32_t height) {
     // Break to NUM_THREADS threads
     uint32_t step_y = height / THREADS_COUNT;
-#pragma omp parallel num_threads(THREADS_COUNT)
+//#pragma omp parallel num_threads(THREADS_COUNT)
     {
-#pragma omp for
+//#pragma omp for
         for (uint32_t section_index = 0; section_index < THREADS_COUNT; section_index++) {
             uint32_t y_start = step_y * section_index;
             uint32_t y_end = y_start + step_y;

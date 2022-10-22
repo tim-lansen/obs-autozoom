@@ -614,7 +614,7 @@ float process_accel(
 }
 
 
-void CropTrack::tick(texture_position_t* tp, float seconds) {
+void CropTrack::tick(texture_position_t* tp) {
     // Current boundaries:
     // texp.offest.x to texp.offest.x + texp.multiply.x
     // texp.offest.y to texp.offest.y + texp.multiply.y

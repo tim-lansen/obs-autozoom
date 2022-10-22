@@ -8,6 +8,8 @@ extern "C" {
 //#include "simd_interface.h"
 }
 
+using namespace std;
+
 
 #if defined(_MSC_VER)
 #define ALIGNED(x) __declspec(align(x))
@@ -1041,6 +1043,7 @@ namespace Sse2
 
 namespace AVX2
 {
+    //using namespace Simd;
     SIMD_INLINE bool Aligned(size_t size, size_t align = sizeof(__m256))
     {
         return Simd::Aligned(size, align);
@@ -1251,8 +1254,8 @@ namespace AVX2
 #elif defined(__MINGW32__) || defined(__MINGW64__)
         ptr = __mingw_aligned_malloc(size, align);
 #elif defined(__GNUC__)
-        align = AlignHi(align, sizeof(void*));
-        size = AlignHi(size, align);
+        align = Simd::AlignHi(align, sizeof(void*));
+        size = Simd::AlignHi(size, align);
         int result = ::posix_memalign(&ptr, align, size);
 #ifdef SIMD_ALLOCATE_ERROR_MESSAGE
         if (result != 0)

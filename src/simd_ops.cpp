@@ -699,7 +699,7 @@ void plane_diff_u8(uint8_t* a, uint8_t* b, uint8_t* c, uint32_t stride, uint32_t
     }
 }
 
-void plane_diff_blur_i8(int8_t* a, int8_t* b, int8_t* c, int8_t* d, uint32_t stride, uint32_t width, uint32_t height) {
+void plane_diff_blur_i8(int8_t* a, int8_t* b, int8_t* c, /*int8_t* d, */uint32_t stride, uint32_t width, uint32_t height) {
     plane_diff_i8(a, b, c, stride, width, height);
     //SimdMedianFilterSquare5x5((const uint8_t*)c, stride, width, height, 1, (uint8_t*)d, stride);
 }

@@ -10,7 +10,7 @@ bool plane_diff_mask_detect(
     uint32_t stride, uint32_t width, uint32_t height,
     double thr, double* ssd);
 
-void plane_diff_blur_i8(int8_t* a, int8_t* b, int8_t* c, int8_t* d, uint32_t stride, uint32_t width, uint32_t height);
+void plane_diff_blur_i8(int8_t* a, int8_t* b, int8_t* c, /*int8_t* d, */uint32_t stride, uint32_t width, uint32_t height);
 void plane_diff_blur_u8(uint8_t* a, uint8_t* b, uint8_t* c, uint8_t* d, uint32_t stride, uint32_t width, uint32_t height);
 
 void simd_set_m256i_limit(uint8_t limit);

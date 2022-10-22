@@ -1775,17 +1775,17 @@ namespace AVX2
         return a;
     }
 
-    template <int part> SIMD_INLINE __m256i UnpackU8(__m256i a, __m256i b = K_ZERO);
+    //template <int part> SIMD_INLINE __m256i UnpackU8(__m256i a, __m256i b = K_ZERO);
 
-    template <> SIMD_INLINE __m256i UnpackU8<0>(__m256i a, __m256i b)
-    {
-        return _mm256_unpacklo_epi8(a, b);
-    }
+    //template <> SIMD_INLINE __m256i UnpackU8<0>(__m256i a, __m256i b)
+    //{
+    //    return _mm256_unpacklo_epi8(a, b);
+    //}
 
-    template <> SIMD_INLINE __m256i UnpackU8<1>(__m256i a, __m256i b)
-    {
-        return _mm256_unpackhi_epi8(a, b);
-    }
+    //template <> SIMD_INLINE __m256i UnpackU8<1>(__m256i a, __m256i b)
+    //{
+    //    return _mm256_unpackhi_epi8(a, b);
+    //}
 
     template <int index> __m256i U8To16(__m256i a);
 
@@ -1799,10 +1799,10 @@ namespace AVX2
         return _mm256_and_si256(_mm256_srli_si256(a, 1), K16_00FF);
     }
 
-    template<int part> SIMD_INLINE __m256i SubUnpackedU8(__m256i a, __m256i b)
+    /*template<int part> SIMD_INLINE __m256i SubUnpackedU8(__m256i a, __m256i b)
     {
         return _mm256_maddubs_epi16(UnpackU8<part>(a, b), K8_01_FF);
-    }
+    }*/
 
     template <int part> SIMD_INLINE __m256i UnpackU16(__m256i a, __m256i b = K_ZERO);
 
@@ -1889,15 +1889,25 @@ namespace AVX2
 
     const __m256i K8_01_02 = SIMD_MM256_SET2_EPI8(0x01, 0x02);
 
-    template<int part> SIMD_INLINE __m256i BinomialSumUnpackedU8(__m256i a[3])
-    {
-        return _mm256_add_epi16(_mm256_maddubs_epi16(UnpackU8<part>(a[0], a[1]), K8_01_02), UnpackU8<part>(a[2]));
-    }
+    //template<int part> SIMD_INLINE __m256i BinomialSumUnpackedU8(__m256i a[3])
+    //{
+    //    return _mm256_add_epi16(_mm256_maddubs_epi16(UnpackU8<part>(a[0], a[1]), K8_01_02), UnpackU8<part>(a[2]));
+    //}
 
     template<bool align> SIMD_INLINE void BlurCol(__m256i a[3], uint16_t* b)
     {
-        Store<align>((__m256i*)b + 0, BinomialSumUnpackedU8<0>(a));
-        Store<align>((__m256i*)b + 1, BinomialSumUnpackedU8<1>(a));
+        //Store<align>((__m256i*)b + 0, BinomialSumUnpackedU8<0>(a));
+        //Store<align>((__m256i*)b + 1, BinomialSumUnpackedU8<1>(a));
+
+        Store<align>((__m256i *)b + 0,
+		     _mm256_add_epi16(_mm256_maddubs_epi16(
+					 _mm256_unpacklo_epi8(a[0], a[1]),
+						  K8_01_02),
+				      _mm256_unpacklo_epi8(a[2], K_ZERO)));
+        Store<align>((__m256i *)b + 1, _mm256_add_epi16(_mm256_maddubs_epi16(
+					 _mm256_unpackhi_epi8(a[0], a[1]),
+						  K8_01_02),
+				      _mm256_unpackhi_epi8(a[2], K_ZERO)));
     }
 
     template<bool align> SIMD_INLINE __m256i BlurRow16(const Buffer& buffer, size_t offset)

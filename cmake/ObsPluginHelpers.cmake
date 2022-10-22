@@ -174,6 +174,7 @@ if(OS_POSIX)
   target_compile_options(
     ${CMAKE_PROJECT_NAME}
     PRIVATE
+      -Wno-psabi
       -Wno-register
       -Wextra
       -Wvla

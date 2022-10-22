@@ -686,7 +686,7 @@ void plane_diff_i8(int8_t* a, int8_t* b, int8_t* c, uint32_t stride, uint32_t wi
 //#pragma omp parallel num_threads(THREADS_COUNT)
     {
 //#pragma omp for
-        for (int y = 0; y < height; y++) {
+        for (uint32_t y = 0; y < height; y++) {
             avx2_diff_int8(a + stride * y, b + stride * y, c + stride * y, width, 0);
         }
     }

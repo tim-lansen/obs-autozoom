@@ -75,12 +75,12 @@ elseif(OS_MACOS)
   set(MACOSX_PLUGIN_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
   set(MACOSX_PLUGIN_SHORT_VERSION_STRING "1")
 
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-reorder -mavx)
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-reorder -mavx -mavx2)
   # --- End of section ---
 
   # --- Linux-specific build settings and tasks ---
 else()
-  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-reorder -mavx)
+  target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-reorder -mavx -mavx2)
 endif()
 # --- End of section ---
 

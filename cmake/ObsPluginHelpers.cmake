@@ -274,18 +274,13 @@ if(OS_MACOS)
         ${CMAKE_HOST_SYSTEM_PROCESSOR}
         CACHE STRING "Build architecture for macOS" FORCE)
   endif()
-  set_property(CACHE CMAKE_OSX_ARCHITECTURES PROPERTY STRINGS arm64 x86_64 "arm64;x86_64")
+  set_property(CACHE CMAKE_OSX_ARCHITECTURES PROPERTY STRINGS x86_64 "x86_64")
 
   # Set deployment target to 11.0 for Apple Silicon or 10.15 for Intel and Universal builds
   if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
-    set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET[arch=arm64] "11.0")
     set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET[arch=x86_64] "10.15")
 
-    if("${CMAKE_OSX_ARCHITECTURES}" STREQUAL "arm64")
-      set(_MACOS_DEPLOYMENT_TARGET "11.0")
-    else()
-      set(_MACOS_DEPLOYMENT_TARGET "10.15")
-    endif()
+    set(_MACOS_DEPLOYMENT_TARGET "10.15")
 
     set(CMAKE_OSX_DEPLOYMENT_TARGET
         ${_MACOS_DEPLOYMENT_TARGET}
@@ -552,6 +547,7 @@ else()
         PRIVATE /MP
                 /W3
                 /WX
+                /O3
                 /wd4201
                 "$<$<CONFIG:RELWITHDEBINFO>:/Ob2>"
                 "$<$<CONFIG:DEBUG>:/DDEBUG=1;/D_DEBUG=1>"

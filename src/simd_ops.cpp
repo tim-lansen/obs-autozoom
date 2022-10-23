@@ -44,9 +44,9 @@ static inline uint64_t align32(uint64_t value) {
     return ((value - 0x1F) & 0xFFFFFFFFFFFFFFE0ull) + 0x20;
 }
 
-static inline uint32_t align32(uint32_t value) {
-    return ((value - 0x1F) & 0xFFFFFFE0) + 0x20;
-}
+//static inline uint32_t align32(uint32_t value) {
+//    return ((value - 0x1F) & 0xFFFFFFE0) + 0x20;
+//}
 
 
 /*
@@ -112,8 +112,7 @@ std::unordered_map <uint32_t, CAlignedPointer> AlignedPointers;
 
 
 AlignedPointer* aligned_pointer_get(uint32_t client_id, size_t size) {
-    size_t aligned_size = align32(size);
-    return AlignedPointers[client_id].get(aligned_size);
+	return AlignedPointers[client_id].get(align32(size));
 }
 
 
@@ -1851,7 +1850,7 @@ namespace AVX2
         return _mm256_or_si256(_mm256_slli_si256(odd, 1), even);
     }
 
-    SIMD_INLINE const __m256i Shuffle(const __m256i & value, const __m256i & shuffle)
+    SIMD_INLINE __m256i Shuffle(const __m256i & value, const __m256i & shuffle)
     {
         return _mm256_or_si256(_mm256_shuffle_epi8(value, _mm256_add_epi8(shuffle, K8_SHUFFLE_0)),
             _mm256_shuffle_epi8(_mm256_permute4x64_epi64(value, 0x4E), _mm256_add_epi8(shuffle, K8_SHUFFLE_1)));

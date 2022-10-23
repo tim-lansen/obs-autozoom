@@ -286,7 +286,7 @@ void CMotionDetect::mask_update() {
 * Check frame and current format. Reset motion zone and re-allocate buffer if new format differs.
 */
 bool CMotionDetect::check_init(obs_source_frame* f) {
-    if (f && f->data && f->data[0]) {
+    if (f && f->data != 0 && f->data[0]) {
         if (f->format != m_format) {
             m_format = f->format;
             m_width = f->width;

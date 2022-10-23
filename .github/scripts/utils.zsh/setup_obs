@@ -93,7 +93,7 @@ if (( ! (${skips[(Ie)all]} + ${skips[(Ie)build]}) )) {
       }
 
       cmake_args+=(
-        -DCMAKE_OSX_ARCHITECTURES=${${target##*-}//universal/x86_64;arm64}
+        -DCMAKE_OSX_ARCHITECTURES="x86_64"
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${DEPLOYMENT_TARGET:-10.15}
         -DOBS_CODESIGN_LINKER=ON
         -DOBS_BUNDLE_CODESIGN_IDENTITY="${CODESIGN_IDENT:--}"

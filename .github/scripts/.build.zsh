@@ -209,7 +209,7 @@ Usage: %B${functrace[1]%:*}%b <option> [<options>]
 
         cmake_args+=(
           -DCMAKE_FRAMEWORK_PATH="${_plugin_deps}/Frameworks"
-          -DCMAKE_OSX_ARCHITECTURES=${${target##*-}//universal/x86_64;arm64}
+          -DCMAKE_OSX_ARCHITECTURES="x86_64"
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${DEPLOYMENT_TARGET:-10.15}
           -DOBS_CODESIGN_LINKER=ON
           -DOBS_BUNDLE_CODESIGN_IDENTITY="${CODESIGN_IDENT:--}"

@@ -45,8 +45,6 @@ package() {
   local -r _version='1.0.0'
   local -r -a _valid_targets=(
     macos-x86_64
-    macos-arm64
-    macos-universal
     linux-x86_64
     linux-aarch64
   )

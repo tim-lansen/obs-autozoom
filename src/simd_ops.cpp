@@ -10,7 +10,6 @@ extern "C" {
 
 using namespace std;
 
-
 #if defined(_MSC_VER)
 #define ALIGNED(x) __declspec(align(x))
 #else
@@ -18,7 +17,6 @@ using namespace std;
 #define ALIGNED(x) __attribute__((aligned(x)))
 #endif
 #endif
-
 
 typedef struct {
     size_t aligned_size;
@@ -43,33 +41,6 @@ static inline bool is_aligned32(uint64_t value) {
 static inline uint64_t align32(uint64_t value) {
     return ((value - 0x1F) & 0xFFFFFFFFFFFFFFE0ull) + 0x20;
 }
-
-//static inline uint32_t align32(uint32_t value) {
-//    return ((value - 0x1F) & 0xFFFFFFE0) + 0x20;
-//}
-
-
-/*
-static inline AlignedPointer* aligned_pointer_create(uint32_t aligned_size) {
-    AlignedPointer* ap = new AlignedPointer;
-    ap->allocated_pointer = malloc((size_t)aligned_size + 0x20);
-    ap->aligned_pointer = (void*)(align32((uint64_t)ap->allocated_pointer));
-    ap->aligned_size = aligned_size;
-    return ap;
-}
-
-
-static inline void aligned_pointer_release(AlignedPointer* ap) {
-    if (ap) {
-        if (ap->allocated_pointer) {
-            free(ap->allocated_pointer);
-            ap->allocated_pointer = NULL;
-            ap->aligned_pointer = NULL;
-            ap->aligned_size = 0;
-        }
-    }
-}
-*/
 
 class CAlignedPointer {
 public:
@@ -106,15 +77,12 @@ public:
     AlignedPointer aligned;
 };
 
-
 // The objects stored here are being removed automatically?
 std::unordered_map <uint32_t, CAlignedPointer> AlignedPointers;
-
 
 AlignedPointer* aligned_pointer_get(uint32_t client_id, size_t size) {
 	return AlignedPointers[client_id].get(align32(size));
 }
-
 
 void avx2_diff_int8(int8_t* a, int8_t* b, int8_t* c, size_t size, uint32_t client_id) {
     int8_t* p1 = NULL;
@@ -215,7 +183,6 @@ void inline avx2_diff_uint8(uint8_t* a, uint8_t* b, uint8_t* c, uint32_t size, u
     }*/
 }
 
-
 ALIGNED(32)
 static uint8_t M256I_LIMIT[32] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 
@@ -256,7 +223,6 @@ void simd_set_m256i_threshold(uint8_t thr) {
     memset(M256I_THRESHOLD, thr, 32);
 }
 
-
 uint32_t inline nonzero_bits_left(uint32_t val) {
     register uint32_t m = 1, v = val, x = 0;
     while (!(v & m)) {
@@ -277,7 +243,6 @@ uint32_t inline nonzero_bits_right(uint32_t val) {
     }
     return x;
 }
-
 
 // Masked detect crop
 bool avx2_mask_detect_uint8(
@@ -342,13 +307,6 @@ bool avx2_mask_detect_uint8(
         }
     }
     return result1 || result2;
-    /*for (; size; --size, p1++, p2++, p3++) {
-    *p3 = u8diff(*p1, *p2);
-    }
-    // Copy back result if needed
-    if (!p3_aligned) {
-    memcpy(c, output, size);
-    }*/
 }
 
 // Masked sub & detect crop
@@ -563,7 +521,6 @@ void avx2_offset_uint8(uint8_t *src, uint8_t *dst, uint32_t size, uint8_t offset
     }
 }
 
-
 ALIGNED(16)
 static uint8_t blend_a[16];
 ALIGNED(16)
@@ -678,7 +635,6 @@ bool plane_diff_mask_detect(
     return false;
 }
 
-
 void plane_diff_i8(int8_t* a, int8_t* b, int8_t* c, uint32_t stride, uint32_t width, uint32_t height) {
     // Break to NUM_THREADS threads
     uint32_t step_y = height / THREADS_COUNT;
@@ -710,12 +666,10 @@ void plane_diff_blur_u8(uint8_t* a, uint8_t* b, uint8_t* c, uint8_t* d, uint32_t
     //SimdMedianFilterSquare5x5((const uint8_t*)c, stride, width, height, 1, (uint8_t*)a, stride);
 }
 
-
 #define SIMD_ALIGN 64
 #define SIMD_NO_MANS_LAND 64
 #define SIMD_INLINE inline
 #define SIMD_X64_ENABLE
-
 
 namespace Simd
 {
@@ -2136,7 +2090,6 @@ namespace AVX2
 
 }
 
-
 void SimdGaussianBlur3x3(const uint8_t * src, size_t srcStride, size_t width, size_t height,
     size_t channelCount, uint8_t * dst, size_t dstStride)
 {
@@ -2148,7 +2101,6 @@ void SimdBackgroundGrowRangeFast(const uint8_t * value, size_t valueStride, size
 {
     AVX2::BackgroundGrowRangeFast(value, valueStride, width, height, lo, loStride, hi, hiStride);
 }
-
 
 void SimdAddFeatureDifference(const uint8_t * value, size_t valueStride, size_t width, size_t height,
     const uint8_t * lo, size_t loStride, const uint8_t * hi, size_t hiStride,

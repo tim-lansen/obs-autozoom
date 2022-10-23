@@ -242,7 +242,7 @@ endif()
 if(_HOST_ARCH MATCHES "i[3-6]86|x86|x64|x86_64|amd64" AND NOT CMAKE_OSX_ARCHITECTURES STREQUAL
                                                           "arm64")
   # Enable MMX, SSE and SSE2 on compatible host systems (assuming no cross-compile)
-  set(ARCH_SIMD_FLAGS -mmmx -msse -msse2 -mavx)
+  set(ARCH_SIMD_FLAGS -mmmx -msse -msse2 -mavx -mavx2)
 elseif(_HOST_ARCH MATCHES "arm64|arm64e|aarch64")
   # Enable available built-in SIMD support in Clang and GCC
   if(CMAKE_C_COMPILER_ID MATCHES "^(Apple)?Clang|GNU" OR CMAKE_CXX_COMPILER_ID MATCHES

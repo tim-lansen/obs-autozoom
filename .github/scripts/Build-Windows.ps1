@@ -75,21 +75,21 @@ function Build {
             "-DCMAKE_BUILD_TYPE=${Configuration}"
             "-DCMAKE_PREFIX_PATH:PATH=$(Resolve-Path -Path "${ProjectRoot}/../obs-build-dependencies/${DepsPath}")"
             "-DQT_VERSION=${script:QtVersion}"
+            '--verbose'
         )
 
         Log-Debug "Attempting to configure OBS with CMake arguments: $($CmakeArgs | Out-String)"
         Log-Information "Configuring ${ProductName}..."
+        echo cmake -S . -B build_${script:Target} @CmakeArgs
         Invoke-External cmake -S . -B build_${script:Target} @CmakeArgs
 
         $CmakeArgs = @(
             '--config', "${Configuration}"
+            '--verbose'
         )
 
-        if ( $VerbosePreference -eq 'Continue' ) {
-            $CmakeArgs+=('--verbose')
-        }
-
         Log-Information "Building ${ProductName}..."
+        echo cmake --build "build_${script:Target}" @CmakeArgs
         Invoke-External cmake --build "build_${script:Target}" @CmakeArgs
     }
     Log-Information "Install ${ProductName}..."

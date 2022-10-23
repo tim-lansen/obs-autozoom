@@ -357,7 +357,7 @@ bool avx2_diff_mask_detect_uint8(uint8_t* a, uint8_t* b, uint8_t* m, uint32_t wi
     bool result1 = false, result2 = false;
     __m256i m256_0, m256_1, mask, m256_2, m256_3, compare, r, zero;
     zero = _mm256_setzero_si256();
-    m256_2 = _mm256_set1_epi8(0xFF);
+    m256_2 = _mm256_set1_epi8((char)0xFF);
     compare = _mm256_load_si256((const __m256i*)M256I_THRESHOLD);
     // Check alignment
     /*

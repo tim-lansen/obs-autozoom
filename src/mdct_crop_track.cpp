@@ -9,6 +9,8 @@ extern "C" {
 
 #include "mdct_crop_track.hpp"
 
+using namespace std;
+
 tp_slot_t tp_slots[10];
 
 static const char *ct_effect_text = "uniform float4x4 ViewProj;\
@@ -93,8 +95,6 @@ void CropTrack::tick(tp_slot_t *tp_slot) {
 
     tc_limit(&m_tc_current, m_scale_maxx);
     tc2tp(&m_tc_current, &m_texp);
-    
-    return;
 }
 
 

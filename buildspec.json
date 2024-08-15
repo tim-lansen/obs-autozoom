@@ -32,6 +32,11 @@
         }
     },
     "platformConfig": {
+        "macos": {
+            "bundleId": "com.example.obs-autozoom",
+            "qtVersion": 6,
+            "deploymentTarget": "10.15"
+        },
         "macos-x86_64": {
             "qtVersion": 6,
             "deploymentTarget": "10.15"

@@ -34,6 +34,11 @@ if(ENABLE_QT)
                AUTORCC ON)
 endif()
 
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/autozoom.c)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+        src/autozoom.c
+        src/mdct_crop_track.cpp
+        src/mdct_motion_detect.cpp
+        src/simd_ops.cpp
+)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})

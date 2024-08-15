@@ -17,7 +17,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
 #include <obs-module.h>
-#include "plugin-macros.generated.h"
+#include "plugin-support.h"
 
 const char *mdf_get_name(void *unused);
 obs_properties_t *mdf_properties(void *data);

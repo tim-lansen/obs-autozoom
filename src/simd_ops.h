@@ -15,7 +15,7 @@ void plane_diff_blur_u8(uint8_t* a, uint8_t* b, uint8_t* c, uint8_t* d, uint32_t
 
 void simd_set_m256i_limit(uint8_t limit);
 void simd_set_m256i_threshold(uint8_t thr);
-void avx2_blend_uint8(uint8_t *a, uint8_t *b, uint8_t *out, uint32_t size);
+void avx2_blend_uint8(uint8_t *a, uint8_t *b, uint8_t *out, size_t size);
 void avx2_offset_uint8(uint8_t *src, uint8_t *dst, uint32_t size, uint8_t offset);
 bool avx2_mask_detect_uint8(uint8_t* a, uint8_t* m, uint32_t width, uint32_t &x1, uint32_t &x2);
 bool avx2_diff_mask_detect_uint8(uint8_t* a, uint8_t* b, uint8_t *m, uint32_t width, uint32_t &x1, uint32_t &x2);

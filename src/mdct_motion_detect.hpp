@@ -79,7 +79,7 @@ public:
     template <typename T>
     void set_slot(T slot) {
         m_slot = static_cast<uint32_t>(slot);
-        blog(LOG_INFO, "[Motion Detect] set_slot(%d)", slot);
+        blog(LOG_INFO, "[Motion Detect] set_slot(%d)", m_slot);
     }
     template <typename T>
     void set_show_delay(T delay) {
@@ -102,8 +102,9 @@ public:
         m_motion_threshold = static_cast<uint8_t>(thr);
         simd_set_m256i_threshold(m_motion_threshold);
     }
-    void set_extinction(uint8_t ext) {
-        m_diff_extinction = 1 << ext;
+    template <typename T>
+    void set_extinction(T ext) {
+        m_diff_extinction = 1 << static_cast<uint8_t>(ext);
     }
     //void set_capture_threshold(double thr) {
     //    m_ssd_threshold = thr;

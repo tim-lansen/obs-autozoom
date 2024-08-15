@@ -3,7 +3,7 @@ extern "C" {
 #include <graphics/image-file.h>
 #include <obs-module.h>
 #include <obs-source.h>
-#include <util/circlebuf.h>
+#include <util/deque.h>
 #include <util/dstr.h>
 }
 

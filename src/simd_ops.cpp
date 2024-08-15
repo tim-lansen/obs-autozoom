@@ -539,7 +539,7 @@ bool avx2_diff_mask_detect_uint8(uint8_t* a, uint8_t* b, uint8_t* m, uint32_t wi
 }
 
 // Average (a + b) >> 1 => out
-void avx2_blend_uint8(uint8_t *a, uint8_t *b, uint8_t *out, uint32_t size) {
+void avx2_blend_uint8(uint8_t *a, uint8_t *b, uint8_t *out, size_t size) {
     for (; size >= 0x20; size -= 0x20, a += 0x20, b += 0x20, out += 0x20) {
         _mm256_store_si256(
             (__m256i *)out,

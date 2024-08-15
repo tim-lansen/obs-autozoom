@@ -2,7 +2,7 @@
 extern "C" {
 #include <obs-module.h>
 #include <obs-source.h>
-#include <util/circlebuf.h>
+#include <util/deque.h>
 #include <util/dstr.h>
 }
 
@@ -458,12 +458,12 @@ obs_source_frame *CMotionDetect::feed_frame(obs_source_frame *f) {
 
         // Delay:
         // 1. Push frame to circlebuffer
-        circlebuf_push_back(&m_frames, &f, sizeof(void *));
+        deque_push_back(&m_frames, &f, sizeof(void *));
         // 2. Pull delayed frame or NULL
         if (m_frames.size < m_show_delay) {
             f = NULL;
         } else {
-            circlebuf_pop_front(&m_frames, &f, sizeof(void *));
+            deque_pop_front(&m_frames, &f, sizeof(void *));
             uint8_t *psrc = m_mask_chroma_dynamic;
             uint8_t *pdst = f->data[0];
             uint8_t *pd;
@@ -586,7 +586,7 @@ extern "C" {
         motion_detect_filter_data *filter = (motion_detect_filter_data *)data;
         //obs_source_t *parent = obs_filter_get_parent(filter->context);
 
-        //circlebuf_push_back(&filter->video_frames, &frame, sizeof(struct obs_source_frame *));
+        //deque_push_back(&filter->video_frames, &frame, sizeof(struct obs_source_frame *));
 
         frame = filter->md->feed_frame(frame);
         return frame;

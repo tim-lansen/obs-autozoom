@@ -13,3 +13,6 @@
 # ignore generated files
 *.generated.*
 **/.Brewfile.lock.json
+
+.CMakeBuildNumber
+cmake-build-debug/

@@ -37,7 +37,6 @@ set(_obs_gcc_c_options
     -Wunreachable-code
     -Wunused-parameter
     -Wunused-value
-    -Wunused-variable
     -Wvla)
 
 # gcc options for C++

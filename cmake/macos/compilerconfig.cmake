@@ -5,7 +5,10 @@ include_guard(GLOBAL)
 include(ccache)
 include(compiler_common)
 
-add_compile_options(-fopenmp-simd)
+add_compile_options(
+        -fopenmp-simd
+        -mavx -mavx2
+)
 
 if(XCODE)
   # Use Xcode's standard architecture selection

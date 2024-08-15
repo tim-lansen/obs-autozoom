@@ -50,6 +50,12 @@
             "qtVersion": 6
         }
     },
+    "author": "Tim Lansen",
+    "email": "tim.lansen@gmail.com",
     "name": "obs-autozoom",
-    "version": "1.0.0"
+    "uuids": {
+        "windowsApp": "be5c9058-d52b-4b74-bb88-95009b3dadee"
+    },
+    "version": "1.0.0",
+    "website": "https://champ.polesports.ru"
 }

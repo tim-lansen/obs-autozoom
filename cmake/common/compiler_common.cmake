@@ -60,6 +60,7 @@ set(_obs_clang_c_options
     -Wunreachable-code
     -Wunused-parameter
     -Wunused-value
+    -Wno-unused-variable
     -Wvla)
 
 # clang options for C++

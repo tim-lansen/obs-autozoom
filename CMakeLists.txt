@@ -21,7 +21,7 @@ if(ENABLE_FRONTEND_API)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::obs-frontend-api)
 endif()
 
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-reorder -mavx -mavx2)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wno-reorder -Wunused-variable -mavx -mavx2)
 
 if(ENABLE_QT)
   find_package(Qt6 COMPONENTS Widgets Core)
@@ -30,6 +30,7 @@ if(ENABLE_QT)
     ${CMAKE_PROJECT_NAME} PRIVATE $<$<C_COMPILER_ID:Clang,AppleClang>:-Wno-quoted-include-in-framework-header
                                   -Wno-comma
                                   -Wno-reorder
+                                  -Wunused-variable
                                   -mavx
                                   -mavx2>)
   set_target_properties(

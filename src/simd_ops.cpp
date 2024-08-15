@@ -354,8 +354,8 @@ bool avx2_mask_detect_uint8(
 // Masked sub & detect crop
 bool avx2_diff_mask_detect_uint8(uint8_t* a, uint8_t* b, uint8_t* m, uint32_t width, uint32_t &x1, uint32_t &x2) {
     bool result1 = false, result2 = false;
-    __m256i m256_0, m256_1, mask, m256_2, m256_3, compare, r, zero;
-    zero = _mm256_setzero_si256();
+    __m256i m256_0, m256_1, mask, m256_2, m256_3, compare, r;
+    // __m256i zero = _mm256_setzero_si256();
     m256_2 = _mm256_set1_epi8((char)0xFF);
     compare = _mm256_load_si256((const __m256i*)M256I_THRESHOLD);
     // Check alignment
@@ -713,93 +713,97 @@ void plane_diff_blur_u8(uint8_t* a, uint8_t* b, uint8_t* c, uint8_t* d, uint32_t
 
 #define SIMD_ALIGN 64
 #define SIMD_NO_MANS_LAND 64
-#define SIMD_INLINE inline
 #define SIMD_X64_ENABLE
 
 
 namespace Simd
 {
 
-    SIMD_INLINE size_t DivHi(size_t value, size_t divider)
+    // inline size_t DivHi(size_t value, size_t divider)
+    // {
+    //     return (value + divider - 1) / divider;
+    // }
+    //
+    // inline size_t AlignHiAny(size_t size, size_t align)
+    // {
+    //     return (size + align - 1) / align * align;
+    // }
+    //
+    // inline size_t AlignLoAny(size_t size, size_t align)
+    // {
+    //     return size / align * align;
+    // }
+    //
+    // inline size_t AlignHi(size_t size, size_t align)
+    // {
+    //     return (size + align - 1) & ~(align - 1);
+    // }
+    //
+    // inline void * AlignHi(const void * ptr, size_t align)
+    // {
+    //     return (void *)((((size_t)ptr) + align - 1) & ~(align - 1));
+    // }
+    template <typename T>
+    T AlignHi(T ptr, size_t align)
     {
-        return (value + divider - 1) / divider;
+        return (T)((((size_t)ptr) + align - 1) & ~(align - 1));
     }
-
-    SIMD_INLINE size_t AlignHiAny(size_t size, size_t align)
-    {
-        return (size + align - 1) / align * align;
-    }
-
-    SIMD_INLINE size_t AlignLoAny(size_t size, size_t align)
-    {
-        return size / align * align;
-    }
-
-    SIMD_INLINE size_t AlignHi(size_t size, size_t align)
-    {
-        return (size + align - 1) & ~(align - 1);
-    }
-
-    SIMD_INLINE void * AlignHi(const void * ptr, size_t align)
-    {
-        return (void *)((((size_t)ptr) + align - 1) & ~(align - 1));
-    }
-
-    SIMD_INLINE size_t AlignLo(size_t size, size_t align)
+    //
+    inline size_t AlignLo(size_t size, size_t align)
     {
         return size & ~(align - 1);
     }
 
-    SIMD_INLINE void * AlignLo(const void * ptr, size_t align)
+    inline void * AlignLo(const void * ptr, size_t align)
     {
         return (void *)(((size_t)ptr) & ~(align - 1));
     }
 
-    SIMD_INLINE bool Aligned(size_t size, size_t align)
+    inline bool Aligned(size_t size, size_t align)
     {
         return size == AlignLo(size, align);
     }
 
-    SIMD_INLINE bool Aligned(const void * ptr, size_t align)
+    inline bool Aligned(const void * ptr, size_t align)
     {
         return ptr == AlignLo(ptr, align);
     }
 
-    template <class T> SIMD_INLINE void Swap(T & a, T & b)
+    template <class T> inline void Swap(T & a, T & b)
     {
         T t = a;
         a = b;
         b = t;
     }
 
-    template <class T> SIMD_INLINE T Min(T a, T b)
+    template <class T> inline T Min(T a, T b)
     {
         return a < b ? a : b;
     }
 
-    template <class T> SIMD_INLINE T Max(T a, T b)
+    template <class T> inline T Max(T a, T b)
     {
         return a > b ? a : b;
     }
 
-    template <class T> SIMD_INLINE T Abs(T a)
+    template <class T> inline T Abs(T a)
     {
         return a < 0 ? -a : a;
     }
 
-    template <class T> SIMD_INLINE T RestrictRange(T value, T min, T max)
+    template <class T> inline T RestrictRange(T value, T min, T max)
     {
         return Max(min, Min(max, value));
     }
 
-    template <class T> SIMD_INLINE T Square(T a)
+    template <class T> inline T Square(T a)
     {
         return a*a;
     }
 
 #ifndef SIMD_ROUND
 #define SIMD_ROUND
-    SIMD_INLINE int Round(double value)
+    inline int Round(double value)
     {
 #if defined(SIMD_SSE2_ENABLE) && ((defined(_MSC_VER) && defined(_M_X64)) || (defined(__GNUC__) && defined(__x86_64__)))
         __m128d t = _mm_set_sd(value);
@@ -812,7 +816,7 @@ namespace Simd
 
 #if defined(_MSC_VER) && (defined(SIMD_X64_ENABLE) || defined(SIMD_X86_ENABLE))
 
-    template <class T> SIMD_INLINE char GetChar(T value, size_t index)
+    template <class T> inline char GetChar(T value, size_t index)
     {
         return ((char*)&value)[index];
     }
@@ -1045,12 +1049,12 @@ namespace Sse2
 namespace AVX2
 {
     //using namespace Simd;
-    SIMD_INLINE bool Aligned(size_t size, size_t align = sizeof(__m256))
+    inline bool Aligned(size_t size, size_t align = sizeof(__m256))
     {
         return Simd::Aligned(size, align);
     }
 
-    SIMD_INLINE bool Aligned(const void * ptr, size_t align = sizeof(__m256))
+    inline bool Aligned(const void * ptr, size_t align = sizeof(__m256))
     {
         return Simd::Aligned(ptr, align);
     }
@@ -1058,7 +1062,7 @@ namespace AVX2
 
 #if defined(_MSC_VER) && (defined(SIMD_X64_ENABLE) || defined(SIMD_X86_ENABLE))
 
-    template <class T> SIMD_INLINE char GetChar(T value, size_t index)
+    template <class T> inline char GetChar(T value, size_t index)
     {
         return ((char*)& value)[index];
     }
@@ -1244,7 +1248,7 @@ namespace AVX2
 
 #endif// defined(_MSC_VER) || defined(__GNUC__)
 
-    SIMD_INLINE void* Allocate(size_t size, size_t align = SIMD_ALIGN)
+    inline void* Allocate(size_t size, size_t align = SIMD_ALIGN)
     {
 #ifdef SIMD_NO_MANS_LAND
         size += 2 * SIMD_NO_MANS_LAND;
@@ -1276,7 +1280,7 @@ namespace AVX2
         return ptr;
     }
 
-    SIMD_INLINE void Free(void* ptr)
+    inline void Free(void* ptr)
     {
 #ifdef SIMD_NO_MANS_LAND
         if (ptr)
@@ -1445,98 +1449,98 @@ namespace AVX2
 
 #if 1
 
-    SIMD_INLINE __m256i SetInt8(char a0, char a1)
+    inline __m256i SetInt8(char a0, char a1)
     {
         return _mm256_unpacklo_epi8(_mm256_set1_epi8(a0), _mm256_set1_epi8(a1));
     }
 
-    SIMD_INLINE __m256i SetInt16(short a0, short a1)
+    inline __m256i SetInt16(short a0, short a1)
     {
         return _mm256_unpacklo_epi16(_mm256_set1_epi16(a0), _mm256_set1_epi16(a1));
     }
 
-    SIMD_INLINE __m256i SetInt32(int a0, int a1)
+    inline __m256i SetInt32(int a0, int a1)
     {
         return _mm256_unpacklo_epi32(_mm256_set1_epi32(a0), _mm256_set1_epi32(a1));
     }
 
-    SIMD_INLINE __m256 SetFloat(float a0, float a1)
+    inline __m256 SetFloat(float a0, float a1)
     {
         return _mm256_unpacklo_ps(_mm256_set1_ps(a0), _mm256_set1_ps(a1));
     }
 
-    template <bool align> SIMD_INLINE __m256i Load(const __m256i * p);
+    template <bool align> inline __m256i Load(const __m256i * p);
 
-    template <> SIMD_INLINE __m256i Load<false>(const __m256i * p)
+    template <> inline __m256i Load<false>(const __m256i * p)
     {
         return _mm256_loadu_si256(p);
     }
 
-    template <> SIMD_INLINE __m256i Load<true>(const __m256i * p)
+    template <> inline __m256i Load<true>(const __m256i * p)
     {
         return _mm256_load_si256(p);
     }
 
-    template <bool align> SIMD_INLINE __m128i LoadHalf(const __m128i * p);
+    template <bool align> inline __m128i LoadHalf(const __m128i * p);
 
-    template <> SIMD_INLINE __m128i LoadHalf<false>(const __m128i * p)
+    template <> inline __m128i LoadHalf<false>(const __m128i * p)
     {
         return _mm_loadu_si128(p);
     }
 
-    template <> SIMD_INLINE __m128i LoadHalf<true>(const __m128i * p)
+    template <> inline __m128i LoadHalf<true>(const __m128i * p)
     {
         return _mm_load_si128(p);
     }
 
-    template <size_t count> SIMD_INLINE __m128i LoadHalfBeforeFirst(__m128i first)
+    template <size_t count> inline __m128i LoadHalfBeforeFirst(__m128i first)
     {
         return _mm_or_si128(_mm_slli_si128(first, count), _mm_and_si128(first, _mm_srli_si128(Sse2::K_INV_ZERO, HA - count)));
     }
 
-    template <size_t count> SIMD_INLINE __m128i LoadHalfAfterLast(__m128i last)
+    template <size_t count> inline __m128i LoadHalfAfterLast(__m128i last)
     {
         return _mm_or_si128(_mm_srli_si128(last, count), _mm_and_si128(last, _mm_slli_si128(Sse2::K_INV_ZERO, HA - count)));
     }
 
-    template <bool align> SIMD_INLINE __m256i LoadPermuted(const __m256i * p)
+    template <bool align> inline __m256i LoadPermuted(const __m256i * p)
     {
         return _mm256_permute4x64_epi64(Load<align>(p), 0xD8);
     }
 
-    template <bool align> SIMD_INLINE __m256i LoadMaskI8(const __m256i * p, __m256i index)
+    template <bool align> inline __m256i LoadMaskI8(const __m256i * p, __m256i index)
     {
         return _mm256_cmpeq_epi8(Load<align>(p), index);
     }
 
-    SIMD_INLINE __m256i PermutedUnpackLoU8(__m256i a, __m256i b = K_ZERO)
+    inline __m256i PermutedUnpackLoU8(__m256i a, __m256i b = K_ZERO)
     {
         return _mm256_permute4x64_epi64(_mm256_unpacklo_epi8(a, b), 0xD8);
     }
 
-    SIMD_INLINE __m256i PermutedUnpackHiU8(__m256i a, __m256i b = K_ZERO)
+    inline __m256i PermutedUnpackHiU8(__m256i a, __m256i b = K_ZERO)
     {
         return _mm256_permute4x64_epi64(_mm256_unpackhi_epi8(a, b), 0xD8);
     }
 
-    SIMD_INLINE __m256i PermutedUnpackLoU16(__m256i a, __m256i b = K_ZERO)
+    inline __m256i PermutedUnpackLoU16(__m256i a, __m256i b = K_ZERO)
     {
         return _mm256_permute4x64_epi64(_mm256_unpacklo_epi16(a, b), 0xD8);
     }
 
-    SIMD_INLINE __m256i PermutedUnpackHiU16(__m256i a, __m256i b = K_ZERO)
+    inline __m256i PermutedUnpackHiU16(__m256i a, __m256i b = K_ZERO)
     {
         return _mm256_permute4x64_epi64(_mm256_unpackhi_epi16(a, b), 0xD8);
     }
 
-    template <bool align, size_t step> SIMD_INLINE __m256i LoadBeforeFirst(const uint8_t * p)
+    template <bool align, size_t step> inline __m256i LoadBeforeFirst(const uint8_t * p)
     {
         __m128i lo = LoadHalfBeforeFirst<step>(LoadHalf<align>((__m128i*)p));
         __m128i hi = _mm_loadu_si128((__m128i*)(p + HA - step));
         return _mm256_inserti128_si256(_mm256_castsi128_si256(lo), hi, 0x1);
     }
 
-    template <bool align, size_t step> SIMD_INLINE void LoadBeforeFirst(const uint8_t * p, __m256i & first, __m256i & second)
+    template <bool align, size_t step> inline void LoadBeforeFirst(const uint8_t * p, __m256i & first, __m256i & second)
     {
         __m128i firstLo = LoadHalfBeforeFirst<step>(LoadHalf<align>((__m128i*)p));
         __m128i firstHi = _mm_loadu_si128((__m128i*)(p + HA - step));
@@ -1547,14 +1551,14 @@ namespace AVX2
         second = _mm256_inserti128_si256(_mm256_castsi128_si256(secondLo), secondHi, 0x1);
     }
 
-    template <bool align, size_t step> SIMD_INLINE __m256i LoadAfterLast(const uint8_t * p)
+    template <bool align, size_t step> inline __m256i LoadAfterLast(const uint8_t * p)
     {
         __m128i lo = _mm_loadu_si128((__m128i*)(p + step));
         __m128i hi = LoadHalfAfterLast<step>(LoadHalf<align>((__m128i*)(p + HA)));
         return _mm256_inserti128_si256(_mm256_castsi128_si256(lo), hi, 0x1);
     }
 
-    template <bool align, size_t step> SIMD_INLINE void LoadAfterLast(const uint8_t * p, __m256i & first, __m256i & second)
+    template <bool align, size_t step> inline void LoadAfterLast(const uint8_t * p, __m256i & first, __m256i & second)
     {
         __m128i firstLo = _mm_loadu_si128((__m128i*)(p + step));
         __m128i firstHi = LoadHalfAfterLast<step>(LoadHalf<align>((__m128i*)(p + HA)));
@@ -1565,28 +1569,28 @@ namespace AVX2
         second = _mm256_inserti128_si256(_mm256_castsi128_si256(secondLo), secondHi, 0x1);
     }
 
-    template <bool align, size_t step> SIMD_INLINE void LoadNose3(const uint8_t * p, __m256i a[3])
+    template <bool align, size_t step> inline void LoadNose3(const uint8_t * p, __m256i a[3])
     {
         a[0] = LoadBeforeFirst<align, step>(p);
         a[1] = Load<align>((__m256i*)p);
         a[2] = _mm256_loadu_si256((__m256i*)(p + step));
     }
 
-    template <bool align, size_t step> SIMD_INLINE void LoadBody3(const uint8_t * p, __m256i a[3])
+    template <bool align, size_t step> inline void LoadBody3(const uint8_t * p, __m256i a[3])
     {
         a[0] = _mm256_loadu_si256((__m256i*)(p - step));
         a[1] = Load<align>((__m256i*)p);
         a[2] = _mm256_loadu_si256((__m256i*)(p + step));
     }
 
-    template <bool align, size_t step> SIMD_INLINE void LoadTail3(const uint8_t * p, __m256i a[3])
+    template <bool align, size_t step> inline void LoadTail3(const uint8_t * p, __m256i a[3])
     {
         a[0] = _mm256_loadu_si256((__m256i*)(p - step));
         a[1] = Load<align>((__m256i*)p);
         a[2] = LoadAfterLast<align, step>(p);
     }
 
-    template <bool align, size_t step> SIMD_INLINE void LoadNose5(const uint8_t * p, __m256i a[5])
+    template <bool align, size_t step> inline void LoadNose5(const uint8_t * p, __m256i a[5])
     {
         LoadBeforeFirst<align, step>(p, a[1], a[0]);
         a[2] = Load<align>((__m256i*)p);
@@ -1594,7 +1598,7 @@ namespace AVX2
         a[4] = _mm256_loadu_si256((__m256i*)(p + 2 * step));
     }
 
-    template <bool align, size_t step> SIMD_INLINE void LoadBody5(const uint8_t * p, __m256i a[5])
+    template <bool align, size_t step> inline void LoadBody5(const uint8_t * p, __m256i a[5])
     {
         a[0] = _mm256_loadu_si256((__m256i*)(p - 2 * step));
         a[1] = _mm256_loadu_si256((__m256i*)(p - step));
@@ -1603,7 +1607,7 @@ namespace AVX2
         a[4] = _mm256_loadu_si256((__m256i*)(p + 2 * step));
     }
 
-    template <bool align, size_t step> SIMD_INLINE void LoadTail5(const uint8_t * p, __m256i a[5])
+    template <bool align, size_t step> inline void LoadTail5(const uint8_t * p, __m256i a[5])
     {
         a[0] = _mm256_loadu_si256((__m256i*)(p - 2 * step));
         a[1] = _mm256_loadu_si256((__m256i*)(p - step));
@@ -1611,32 +1615,32 @@ namespace AVX2
         LoadAfterLast<align, step>(p, a[3], a[4]);
     }
 
-    SIMD_INLINE void LoadNoseDx(const uint8_t * p, __m256i a[3])
+    inline void LoadNoseDx(const uint8_t * p, __m256i a[3])
     {
         a[0] = LoadBeforeFirst<false, 1>(p);
         a[2] = _mm256_loadu_si256((__m256i*)(p + 1));
     }
 
-    SIMD_INLINE void LoadBodyDx(const uint8_t * p, __m256i a[3])
+    inline void LoadBodyDx(const uint8_t * p, __m256i a[3])
     {
         a[0] = _mm256_loadu_si256((__m256i*)(p - 1));
         a[2] = _mm256_loadu_si256((__m256i*)(p + 1));
     }
 
-    SIMD_INLINE void LoadTailDx(const uint8_t * p, __m256i a[3])
+    inline void LoadTailDx(const uint8_t * p, __m256i a[3])
     {
         a[0] = _mm256_loadu_si256((__m256i*)(p - 1));
         a[2] = LoadAfterLast<false, 1>(p);
     }
 
-    template <bool align> SIMD_INLINE __m256 Load(const float * p);
+    template <bool align> inline __m256 Load(const float * p);
 
-    template <> SIMD_INLINE __m256 Load<false>(const float * p)
+    template <> inline __m256 Load<false>(const float * p)
     {
         return _mm256_loadu_ps(p);
     }
 
-    template <> SIMD_INLINE __m256 Load<true>(const float * p)
+    template <> inline __m256 Load<true>(const float * p)
     {
 #ifdef _MSC_VER
         return _mm256_castsi256_ps(_mm256_load_si256((__m256i*)p));
@@ -1646,45 +1650,45 @@ namespace AVX2
     }
 
 
-    template <bool align> SIMD_INLINE void Store(__m256i * p, __m256i a);
+    template <bool align> inline void Store(__m256i * p, __m256i a);
 
-    template <> SIMD_INLINE void Store<false>(__m256i * p, __m256i a)
+    template <> inline void Store<false>(__m256i * p, __m256i a)
     {
         _mm256_storeu_si256(p, a);
     }
 
-    template <> SIMD_INLINE void Store<true>(__m256i * p, __m256i a)
+    template <> inline void Store<true>(__m256i * p, __m256i a)
     {
         _mm256_store_si256(p, a);
     }
 
-    template <bool align> SIMD_INLINE void StoreMasked(__m256i * p, __m256i value, __m256i mask)
+    template <bool align> inline void StoreMasked(__m256i * p, __m256i value, __m256i mask)
     {
         __m256i old = Load<align>(p);
         Store<align>(p, _mm256_blendv_epi8(old, value, mask));
     }
 
-    SIMD_INLINE __m256i PackI16ToI8(__m256i lo, __m256i hi)
+    inline __m256i PackI16ToI8(__m256i lo, __m256i hi)
     {
         return _mm256_permute4x64_epi64(_mm256_packs_epi16(lo, hi), 0xD8);
     }
 
-    SIMD_INLINE __m256i PackU16ToU8(__m256i lo, __m256i hi)
+    inline __m256i PackU16ToU8(__m256i lo, __m256i hi)
     {
         return _mm256_permute4x64_epi64(_mm256_packus_epi16(lo, hi), 0xD8);
     }
 
-    SIMD_INLINE __m256i PackI32ToI16(__m256i lo, __m256i hi)
+    inline __m256i PackI32ToI16(__m256i lo, __m256i hi)
     {
         return _mm256_permute4x64_epi64(_mm256_packs_epi32(lo, hi), 0xD8);
     }
 
-    SIMD_INLINE __m256i PackU32ToI16(__m256i lo, __m256i hi)
+    inline __m256i PackU32ToI16(__m256i lo, __m256i hi)
     {
         return _mm256_permute4x64_epi64(_mm256_packus_epi32(lo, hi), 0xD8);
     }
 
-    SIMD_INLINE void Permute2x128(__m256i & lo, __m256i & hi)
+    inline void Permute2x128(__m256i & lo, __m256i & hi)
     {
         __m256i _lo = lo;
         lo = _mm256_permute2x128_si256(lo, hi, 0x20);
@@ -1692,7 +1696,7 @@ namespace AVX2
     }
 
 
-    template <class T> SIMD_INLINE __m256i SetMask(T first, size_t position, T second)
+    template <class T> inline __m256i SetMask(T first, size_t position, T second)
     {
         const size_t size = A / sizeof(T);
         assert(position <= size);
@@ -1708,149 +1712,149 @@ namespace AVX2
 
 #if 1
 
-    SIMD_INLINE __m256i SaturateI16ToU8(__m256i value)
+    inline __m256i SaturateI16ToU8(__m256i value)
     {
         return _mm256_min_epi16(K16_00FF, _mm256_max_epi16(value, K_ZERO));
     }
 
-    SIMD_INLINE __m256i MaxI16(__m256i a, __m256i b, __m256i c)
+    inline __m256i MaxI16(__m256i a, __m256i b, __m256i c)
     {
         return _mm256_max_epi16(a, _mm256_max_epi16(b, c));
     }
 
-    SIMD_INLINE __m256i MinI16(__m256i a, __m256i b, __m256i c)
+    inline __m256i MinI16(__m256i a, __m256i b, __m256i c)
     {
         return _mm256_min_epi16(a, _mm256_min_epi16(b, c));
     }
 
-    SIMD_INLINE void SortU8(__m256i & a, __m256i & b)
+    inline void SortU8(__m256i & a, __m256i & b)
     {
         __m256i t = a;
         a = _mm256_min_epu8(t, b);
         b = _mm256_max_epu8(t, b);
     }
 
-    SIMD_INLINE __m256i HorizontalSum32(__m256i a)
+    inline __m256i HorizontalSum32(__m256i a)
     {
         return _mm256_add_epi64(_mm256_unpacklo_epi32(a, K_ZERO), _mm256_unpackhi_epi32(a, K_ZERO));
     }
 
-    SIMD_INLINE __m256i AbsDifferenceU8(__m256i a, __m256i b)
+    inline __m256i AbsDifferenceU8(__m256i a, __m256i b)
     {
         return _mm256_sub_epi8(_mm256_max_epu8(a, b), _mm256_min_epu8(a, b));
     }
 
-    SIMD_INLINE __m256i AbsDifferenceI16(__m256i a, __m256i b)
+    inline __m256i AbsDifferenceI16(__m256i a, __m256i b)
     {
         return _mm256_sub_epi16(_mm256_max_epi16(a, b), _mm256_min_epi16(a, b));
     }
 
-    SIMD_INLINE __m256i MulU8(__m256i a, __m256i b)
+    inline __m256i MulU8(__m256i a, __m256i b)
     {
         __m256i lo = _mm256_mullo_epi16(_mm256_unpacklo_epi8(a, K_ZERO), _mm256_unpacklo_epi8(b, K_ZERO));
         __m256i hi = _mm256_mullo_epi16(_mm256_unpackhi_epi8(a, K_ZERO), _mm256_unpackhi_epi8(b, K_ZERO));
         return _mm256_packus_epi16(lo, hi);
     }
 
-    SIMD_INLINE __m256i DivideI16By255(__m256i value)
+    inline __m256i DivideI16By255(__m256i value)
     {
         return _mm256_srli_epi16(_mm256_add_epi16(_mm256_add_epi16(value, K16_0001), _mm256_srli_epi16(value, 8)), 8);
     }
 
-    SIMD_INLINE __m256i BinomialSum16(const __m256i & a, const __m256i & b, const __m256i & c)
+    inline __m256i BinomialSum16(const __m256i & a, const __m256i & b, const __m256i & c)
     {
         return _mm256_add_epi16(_mm256_add_epi16(a, c), _mm256_add_epi16(b, b));
     }
 
     template <bool abs> __m256i ConditionalAbs(__m256i a);
 
-    template <> SIMD_INLINE __m256i ConditionalAbs<true>(__m256i a)
+    template <> inline __m256i ConditionalAbs<true>(__m256i a)
     {
         return _mm256_abs_epi16(a);
     }
 
-    template <> SIMD_INLINE __m256i ConditionalAbs<false>(__m256i a)
+    template <> inline __m256i ConditionalAbs<false>(__m256i a)
     {
         return a;
     }
 
-    //template <int part> SIMD_INLINE __m256i UnpackU8(__m256i a, __m256i b = K_ZERO);
+    //template <int part> inline __m256i UnpackU8(__m256i a, __m256i b = K_ZERO);
 
-    //template <> SIMD_INLINE __m256i UnpackU8<0>(__m256i a, __m256i b)
+    //template <> inline __m256i UnpackU8<0>(__m256i a, __m256i b)
     //{
     //    return _mm256_unpacklo_epi8(a, b);
     //}
 
-    //template <> SIMD_INLINE __m256i UnpackU8<1>(__m256i a, __m256i b)
+    //template <> inline __m256i UnpackU8<1>(__m256i a, __m256i b)
     //{
     //    return _mm256_unpackhi_epi8(a, b);
     //}
 
     template <int index> __m256i U8To16(__m256i a);
 
-    template <> SIMD_INLINE __m256i U8To16<0>(__m256i a)
+    template <> inline __m256i U8To16<0>(__m256i a)
     {
         return _mm256_and_si256(a, K16_00FF);
     }
 
-    template <> SIMD_INLINE __m256i U8To16<1>(__m256i a)
+    template <> inline __m256i U8To16<1>(__m256i a)
     {
         return _mm256_and_si256(_mm256_srli_si256(a, 1), K16_00FF);
     }
 
-    /*template<int part> SIMD_INLINE __m256i SubUnpackedU8(__m256i a, __m256i b)
+    /*template<int part> inline __m256i SubUnpackedU8(__m256i a, __m256i b)
     {
         return _mm256_maddubs_epi16(UnpackU8<part>(a, b), K8_01_FF);
     }*/
 
-    template <int part> SIMD_INLINE __m256i UnpackU16(__m256i a, __m256i b = K_ZERO);
+    template <int part> inline __m256i UnpackU16(__m256i a, __m256i b = K_ZERO);
 
-    template <> SIMD_INLINE __m256i UnpackU16<0>(__m256i a, __m256i b)
+    template <> inline __m256i UnpackU16<0>(__m256i a, __m256i b)
     {
         return _mm256_unpacklo_epi16(a, b);
     }
 
-    template <> SIMD_INLINE __m256i UnpackU16<1>(__m256i a, __m256i b)
+    template <> inline __m256i UnpackU16<1>(__m256i a, __m256i b)
     {
         return _mm256_unpackhi_epi16(a, b);
     }
 
-    template<int shift> SIMD_INLINE __m256 Alignr(const __m256 & s0, const __m256 & s4)
+    template<int shift> inline __m256 Alignr(const __m256 & s0, const __m256 & s4)
     {
         return _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(s4), _mm256_castps_si256(s0), shift * 4));
     }
 
-    template<int imm> SIMD_INLINE __m256i Shuffle32i(__m256i lo, __m256i hi)
+    template<int imm> inline __m256i Shuffle32i(__m256i lo, __m256i hi)
     {
         return _mm256_castps_si256(_mm256_shuffle_ps(_mm256_castsi256_ps(lo), _mm256_castsi256_ps(hi), imm));
     }
 
-    template<int imm> SIMD_INLINE __m256 Permute4x64(__m256 a)
+    template<int imm> inline __m256 Permute4x64(__m256 a)
     {
         return _mm256_castsi256_ps(_mm256_permute4x64_epi64(_mm256_castps_si256(a), imm));
     }
 
-    template<int imm> SIMD_INLINE __m256 Shuffle32f(__m256 a)
+    template<int imm> inline __m256 Shuffle32f(__m256 a)
     {
         return _mm256_castsi256_ps(_mm256_shuffle_epi32(_mm256_castps_si256(a), imm));
     }
 
-    template <int index> SIMD_INLINE __m256 Broadcast(__m256 a)
+    template <int index> inline __m256 Broadcast(__m256 a)
     {
         return _mm256_castsi256_ps(_mm256_shuffle_epi32(_mm256_castps_si256(a), index * 0x55));
     }
 
-    SIMD_INLINE __m256i Average16(const __m256i & a, const __m256i & b, const __m256i & c, const __m256i & d)
+    inline __m256i Average16(const __m256i & a, const __m256i & b, const __m256i & c, const __m256i & d)
     {
         return _mm256_srli_epi16(_mm256_add_epi16(_mm256_add_epi16(_mm256_add_epi16(a, b), _mm256_add_epi16(c, d)), K16_0002), 2);
     }
 
-    SIMD_INLINE __m256i Merge16(const __m256i & even, __m256i odd)
+    inline __m256i Merge16(const __m256i & even, __m256i odd)
     {
         return _mm256_or_si256(_mm256_slli_si256(odd, 1), even);
     }
 
-    SIMD_INLINE __m256i Shuffle(const __m256i & value, const __m256i & shuffle)
+    inline __m256i Shuffle(const __m256i & value, const __m256i & shuffle)
     {
         return _mm256_or_si256(_mm256_shuffle_epi8(value, _mm256_add_epi8(shuffle, K8_SHUFFLE_0)),
             _mm256_shuffle_epi8(_mm256_permute4x64_epi64(value, 0x4E), _mm256_add_epi8(shuffle, K8_SHUFFLE_1)));
@@ -1881,19 +1885,19 @@ namespace AVX2
     };
 
 
-    SIMD_INLINE __m256i DivideBy16(__m256i value)
+    inline __m256i DivideBy16(__m256i value)
     {
         return _mm256_srli_epi16(_mm256_add_epi16(value, K16_0008), 4);
     }
 
     const __m256i K8_01_02 = SIMD_MM256_SET2_EPI8(0x01, 0x02);
 
-    //template<int part> SIMD_INLINE __m256i BinomialSumUnpackedU8(__m256i a[3])
+    //template<int part> inline __m256i BinomialSumUnpackedU8(__m256i a[3])
     //{
     //    return _mm256_add_epi16(_mm256_maddubs_epi16(UnpackU8<part>(a[0], a[1]), K8_01_02), UnpackU8<part>(a[2]));
     //}
 
-    template<bool align> SIMD_INLINE void BlurCol(__m256i a[3], uint16_t* b)
+    template<bool align> inline void BlurCol(__m256i a[3], uint16_t* b)
     {
         //Store<align>((__m256i*)b + 0, BinomialSumUnpackedU8<0>(a));
         //Store<align>((__m256i*)b + 1, BinomialSumUnpackedU8<1>(a));
@@ -1909,7 +1913,7 @@ namespace AVX2
 				      _mm256_unpackhi_epi8(a[2], K_ZERO)));
     }
 
-    template<bool align> SIMD_INLINE __m256i BlurRow16(const Buffer& buffer, size_t offset)
+    template<bool align> inline __m256i BlurRow16(const Buffer& buffer, size_t offset)
     {
         return DivideBy16(BinomialSum16(
             Load<align>((__m256i*)(buffer.src0 + offset)),
@@ -1917,7 +1921,7 @@ namespace AVX2
             Load<align>((__m256i*)(buffer.src2 + offset))));
     }
 
-    template<bool align> SIMD_INLINE __m256i BlurRow(const Buffer& buffer, size_t offset)
+    template<bool align> inline __m256i BlurRow(const Buffer& buffer, size_t offset)
     {
         return _mm256_packus_epi16(BlurRow16<align>(buffer, offset), BlurRow16<align>(buffer, offset + HA));
     }
@@ -2004,7 +2008,7 @@ namespace AVX2
 
 #if 1
 
-    template <bool align> SIMD_INLINE void BackgroundGrowRangeFast(const uint8_t * value, uint8_t * lo, uint8_t * hi)
+    template <bool align> inline void BackgroundGrowRangeFast(const uint8_t * value, uint8_t * lo, uint8_t * hi)
     {
         const __m256i _value = Load<align>((__m256i*)value);
         const __m256i _lo = Load<align>((__m256i*)lo);
@@ -2055,24 +2059,24 @@ namespace AVX2
 #endif
 #if 1
 
-    SIMD_INLINE __m256i FeatureDifference(__m256i value, __m256i lo, __m256i hi)
+    inline __m256i FeatureDifference(__m256i value, __m256i lo, __m256i hi)
     {
         return _mm256_max_epu8(_mm256_subs_epu8(value, hi), _mm256_subs_epu8(lo, value));
     }
 
-    SIMD_INLINE __m256i ShiftedWeightedSquare16(__m256i difference, __m256i weight)
+    inline __m256i ShiftedWeightedSquare16(__m256i difference, __m256i weight)
     {
         return _mm256_mulhi_epu16(_mm256_mullo_epi16(difference, difference), weight);
     }
 
-    SIMD_INLINE __m256i ShiftedWeightedSquare8(__m256i difference, __m256i weight)
+    inline __m256i ShiftedWeightedSquare8(__m256i difference, __m256i weight)
     {
         const __m256i lo = ShiftedWeightedSquare16(_mm256_unpacklo_epi8(difference, K_ZERO), weight);
         const __m256i hi = ShiftedWeightedSquare16(_mm256_unpackhi_epi8(difference, K_ZERO), weight);
         return _mm256_packus_epi16(lo, hi);
     }
 
-    template <bool align> SIMD_INLINE void AddFeatureDifference(const uint8_t * value, const uint8_t * lo, const uint8_t * hi,
+    template <bool align> inline void AddFeatureDifference(const uint8_t * value, const uint8_t * lo, const uint8_t * hi,
         uint8_t * difference, size_t offset, __m256i weight, __m256i mask)
     {
         const __m256i _value = Load<align>((__m256i*)(value + offset));

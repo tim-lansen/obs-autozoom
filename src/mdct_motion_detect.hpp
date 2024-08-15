@@ -64,7 +64,7 @@ public:
         m_zone.x2 = 0;
         m_zone.y1 = 0;
         m_zone.y2 = 0;
-        circlebuf_init(&m_frames);
+        deque_init(&m_frames);
         memset(&m_mask, 0, sizeof(m_mask));
     }
     ~CMotionDetect(){
@@ -83,11 +83,12 @@ public:
     }
     void set_show_delay(uint32_t delay) {
         m_show_delay = delay;
+        const size_t size = delay * sizeof(void *);
         blog(LOG_INFO, "[Motion Detect] set_show_delay(%d)", delay);
-        while (m_frames.size > delay * sizeof(void *)) {
+        while (m_frames.size > size) {
             obs_source_frame *frame;
-            circlebuf_pop_front(&m_frames, &frame, sizeof(void *));
-            obs_source_release_frame(NULL, frame);
+            deque_pop_front(&m_frames, &frame, sizeof(void *));
+            obs_source_release_frame(nullptr, frame);
         }
     }
     void set_diff_delay(uint32_t delay) {
@@ -109,12 +110,12 @@ public:
     void release_frames(obs_source_t *parent) {
         while (m_frames.size) {
             obs_source_frame *frame;
-            circlebuf_pop_front(&m_frames, &frame, sizeof(void *));
+            deque_pop_front(&m_frames, &frame, sizeof(void *));
             obs_source_release_frame(parent, frame);
         }
     }
     void destroy_frames() {
-        circlebuf_free(&m_frames);
+        deque_free(&m_frames);
     }
 
     // Setup
@@ -134,7 +135,7 @@ public:
     void dynamic();
     obs_source_frame *feed_frame(obs_source_frame *f);
 
-    struct circlebuf m_frames;
+    struct deque m_frames;
     uint8_t *m_planes[DIFF_DELAY_MAX];
 
     video_format m_format;

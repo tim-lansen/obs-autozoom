@@ -1,38 +1,27 @@
 #pragma once
 
+#include <cmath>
 
 extern "C" {
 #include <obs-module.h>
-#include <util/circlebuf.h>
+#include <util/deque.h>
 #include <graphics/image-file.h>
 }
+
+using namespace std;
+
 
 uint8_t inline sign12(float f) {
     return f < 0.0f ? 1 : 2;
 }
 
-float inline translate_int_float(int value, int imin, int imax, float fmin, float fmax) {
-    float scale = (fmax - fmin) / (float)(imax - imin);
-    float result = scale * (float)(value - imin) + fmin;
-    return result;
-}
-
-float inline f_abs(float v) {
-    if (v >= 0.0f)
-        return v;
-    return -v;
-}
-
-float inline f_min(float a, float b) {
-    if (a > b)
-        return b;
-    return a;
-}
-
-float inline f_max(float a, float b) {
-    if (a > b)
-        return a;
-    return b;
+template<typename Ti, typename To>
+To translate_value_using_ranges (
+    Ti value, Ti i_min, Ti i_max, To o_min, To o_max
+) {
+    const auto input_range = static_cast<To>(i_max - i_min);
+    const auto input_offset = static_cast<To>(value - i_min) / input_range;
+    return o_min + (o_max - o_min) * input_offset;
 }
 
 typedef struct {
@@ -68,7 +57,7 @@ void inline tc_scale(texture_center_t *tc, float scale, texture_center_t *result
 
 void inline tp2tc_limit(texture_position_t *tp, texture_center_t *tc, float scale_max) {
     float scale_max_inv = 1.0f / scale_max;
-    float scale = f_min(1.0f, f_max(scale_max_inv, f_max(tp->multiply.x, tp->multiply.y)));
+    float scale = min(1.0f, max(scale_max_inv, max(tp->multiply.x, tp->multiply.y)));
     float cx = tp->offset.x + 0.5f * tp->multiply.x;
     float cy = tp->offset.y + 0.5f * tp->multiply.y;
     float half = 0.5f * scale;
@@ -90,7 +79,7 @@ void inline tp2tc_limit(texture_position_t *tp, texture_center_t *tc, float scal
 void inline tp2tc(texture_position_t *tp, texture_center_t *tc) {
     tc->cx = tp->offset.x + 0.5f * tp->multiply.x;
     tc->cy = tp->offset.y + 0.5f * tp->multiply.y;
-    tc->scale = f_max(tp->multiply.x, tp->multiply.y);
+    tc->scale = max(tp->multiply.x, tp->multiply.y);
 }
 
 void inline tc2tp(texture_center_t *tc, texture_position_t *tp) {
@@ -101,7 +90,7 @@ void inline tc2tp(texture_center_t *tc, texture_position_t *tp) {
 }
 
 void inline tc_limit(texture_center_t *tc, float scale_max_inv) {
-    float scale = f_min(1.0f, f_max(scale_max_inv, tc->scale));
+    float scale = min(1.0f, max(scale_max_inv, tc->scale));
     float cx = tc->cx;
     float cy = tc->cy;
     float half = 0.5f * scale;
@@ -205,7 +194,7 @@ void inline conform_texp(texture_position_t *tp, float mult_min) {
         tp->offset.y = 0.0f;
         tp->multiply.y = 1.0f;
     }
-    float mdiff = 0.5f * f_abs(tp->multiply.x - tp->multiply.y);
+    float mdiff = 0.5f * abs(tp->multiply.x - tp->multiply.y);
     if (mdiff > 0.0001f) {
         if (tp->multiply.x < tp->multiply.y) {
             tp->offset.x -= mdiff;
@@ -217,18 +206,19 @@ void inline conform_texp(texture_position_t *tp, float mult_min) {
     }
 }
 
-void inline conform_bound(float &v, float g) {
-    if (v < g) {
-        v = g;
-    } else if (v > (1.0f - g)) {
-        v = 1.0f - g;
+template<typename T>
+void conform_bound(T &value, T ground) {
+    if (value < ground) {
+        value = ground;
+    } else {
+        const auto top = static_cast<T>(1) - ground;
+        value = min(value, top);
     }
 }
 
 void inline conform_tc(texture_center_t *tc, float mult_min) {
-    tc->scale = f_min(1.0f, f_max(mult_min, tc->scale));
-    float gap = 0.5f * tc->scale;
+    tc->scale = min(1.0f, max(mult_min, tc->scale));
+    const float gap = 0.5f * tc->scale;
     conform_bound(tc->cx, gap);
     conform_bound(tc->cy, gap);
 }
-

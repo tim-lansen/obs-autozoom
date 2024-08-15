@@ -128,8 +128,16 @@ extern "C" {
         struct crop_track_data *f = (crop_track_data *)data;
         f->ct_slot = (uint32_t)obs_data_get_int(s, CT_SLOT_ID);
         f->ct->m_scale_maxx = 1.0f / (float)obs_data_get_double(s, CT_MAX_SCALE_ID);
-        f->ct->m_speed = translate_int_float(obs_data_get_int(s, CT_SPEED_ID), SPEED_MIN, SPEED_MAX, AVERAGE_MIN, AVERAGE_MAX);
-        f->ct->m_brake = translate_int_float(BRAKE_IMAX + BRAKE_IMIN - obs_data_get_int(s, CT_BRAKE_ID), BRAKE_IMIN, BRAKE_IMAX, BRAKE_FMIN, BRAKE_FMAX);
+        f->ct->m_speed = translate_value_using_ranges(
+	        obs_data_get_int(s, CT_SPEED_ID),
+	        SPEED_MIN, SPEED_MAX,
+	        AVERAGE_MIN, AVERAGE_MAX
+	        );
+        f->ct->m_brake = translate_value_using_ranges(
+        	BRAKE_IMAX + BRAKE_IMIN - obs_data_get_int(s, CT_BRAKE_ID),
+        	BRAKE_IMIN, BRAKE_IMAX,
+        	BRAKE_FMIN, BRAKE_FMAX
+        	);
         tp_reset(&tp_slots[f->ct_slot].tp);
         f->width = 0;
         f->height = 0;

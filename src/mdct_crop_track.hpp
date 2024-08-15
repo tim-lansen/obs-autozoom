@@ -4,14 +4,14 @@
 
 #define NAME_CROP_TRACK "Crop Track"
 
-#define SPEED_MIN 1
-#define SPEED_MAX 100
+#define SPEED_MIN 1ll
+#define SPEED_MAX 100ll
 #define SPEED_DEF 50
 #define AVERAGE_MIN 0.001f
 #define AVERAGE_MAX 0.3f
 
-#define BRAKE_IMIN 1
-#define BRAKE_IMAX 20
+#define BRAKE_IMIN 1ll
+#define BRAKE_IMAX 20ll
 #define BRAKE_IDEF 10
 #define BRAKE_FMIN 0.2f
 #define BRAKE_FMAX 1.0f

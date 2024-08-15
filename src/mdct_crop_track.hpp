@@ -41,6 +41,9 @@
 //#define S_ZOOM_OUT_SPEED_MAX "zoom_out_speed_max"
 //#define S_CENTER_DEV         "max_center_deviation"
 
+#define NOMINMAX
+#include <algorithm>
+
 using namespace std;
 
 class CropTrack {

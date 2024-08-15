@@ -8,6 +8,9 @@ extern "C" {
 #include <graphics/image-file.h>
 }
 
+#define NOMINMAX
+#include <algorithm>
+
 using namespace std;
 
 

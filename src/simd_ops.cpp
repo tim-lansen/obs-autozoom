@@ -8,6 +8,9 @@ extern "C" {
 //#include "simd_interface.h"
 }
 
+#define NOMINMAX
+#include <algorithm>
+
 using namespace std;
 
 

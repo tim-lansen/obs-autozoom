@@ -258,7 +258,7 @@ void simd_set_m256i_threshold(uint8_t thr) {
 
 
 uint32_t inline nonzero_bits_left(uint32_t val) {
-    register uint32_t m = 1, v = val, x = 0;
+    uint32_t m = 1, v = val, x = 0;
     while (!(v & m)) {
         v >>= 1;
         x++;
@@ -267,7 +267,7 @@ uint32_t inline nonzero_bits_left(uint32_t val) {
 }
 
 uint32_t inline nonzero_bits_right(uint32_t val) {
-    register uint32_t m = 0x80000000, v = val, x = 0x1F;
+    uint32_t m = 0x80000000, v = val, x = 0x1F;
     v = val;
     for (;;) {
         if (v & m)

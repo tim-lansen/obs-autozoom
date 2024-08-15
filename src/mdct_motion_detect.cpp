@@ -561,8 +561,8 @@ extern "C" {
         blog(LOG_INFO, "[MD] mdf_update()");
         motion_detect_filter_data *f = (motion_detect_filter_data *)data;
 
-        f->md->set_slot((uint32_t)obs_data_get_int(s, MD_SLOT_ID));
-        f->md->set_show_delay((uint32_t)obs_data_get_int(s, MD_SHOW_DELAY_ID));
+        f->md->set_slot(obs_data_get_int(s, MD_SLOT_ID));
+        f->md->set_show_delay(obs_data_get_int(s, MD_SHOW_DELAY_ID));
         //f->md->set_capture_threshold(obs_data_get_double(s, MD_CAPTURE_THRESHOLD_ID));
         f->md->set_diff_delay(obs_data_get_int(s, MD_DIFF_DELAY_ID));
         f->md->set_motion_threshold(obs_data_get_int(s, MD_MOTION_THRESHOLD_ID));

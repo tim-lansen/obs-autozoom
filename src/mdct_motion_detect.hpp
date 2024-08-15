@@ -76,28 +76,31 @@ public:
         }
         gs_image_file_free(&m_mask);
     }
-
-    void set_slot(uint32_t slot) {
-        m_slot = slot;
+    template <typename T>
+    void set_slot(T slot) {
+        m_slot = static_cast<uint32_t>(slot);
         blog(LOG_INFO, "[Motion Detect] set_slot(%d)", slot);
     }
-    void set_show_delay(uint32_t delay) {
-        m_show_delay = delay;
-        const size_t size = delay * sizeof(void *);
-        blog(LOG_INFO, "[Motion Detect] set_show_delay(%d)", delay);
+    template <typename T>
+    void set_show_delay(T delay) {
+        m_show_delay = static_cast<uint32_t>(delay);
+        const size_t size = m_show_delay * sizeof(void *);
+        blog(LOG_INFO, "[Motion Detect] set_show_delay(%d)", m_show_delay);
         while (m_frames.size > size) {
             obs_source_frame *frame;
             deque_pop_front(&m_frames, &frame, sizeof(void *));
             obs_source_release_frame(nullptr, frame);
         }
     }
-    void set_diff_delay(uint32_t delay) {
-        m_diff_delay = delay;
-        blog(LOG_INFO, "[Motion Detect] set_diff_delay(%d)", delay);
+    template <typename T>
+    void set_diff_delay(T delay) {
+        m_diff_delay = static_cast<uint32_t>(delay);
+        blog(LOG_INFO, "[Motion Detect] set_diff_delay(%d)", m_diff_delay);
     }
-    void set_motion_threshold(uint8_t thr) {
-        m_motion_threshold = thr;
-        simd_set_m256i_threshold(thr);
+    template <typename T>
+    void set_motion_threshold(T thr) {
+        m_motion_threshold = static_cast<uint8_t>(thr);
+        simd_set_m256i_threshold(m_motion_threshold);
     }
     void set_extinction(uint8_t ext) {
         m_diff_extinction = 1 << ext;
